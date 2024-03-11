@@ -27,41 +27,24 @@ async function translateTextByDeepl(flag: string) {
   const deepLService = new DeepLService(); // 确保这里正确传入了API Key或其他必要的初始化参数
 
   try {
+    const translationFunction = flag === 'EN' ? deepLService.translateToEnglish.bind(deepLService) : deepLService.translateToChinese.bind(deepLService);
     let translations = await withProgress<string[]>(
       'Translating...',
-      (progress, token) => {
+      (progress, token) => translationFunction(text) // 假设translateToEnglish和translateToChinese都返回Promise<string[]>
+    );
 
-        if (flag === 'EN') {
-          return deepLService.translateToEnglish(text)
-        }
-
-        if (flag === 'ZH') {
-          return deepLService.translateToChinese(text)
-        }
-
-        return Promise.resolve([]);
-      } // 确保translateToEnglish方法接受一个取消令牌
-    )
     if (!translations) {
-      // 当用户取消操作时，withProgress可能返回undefined
       return;
     }
-    
-    if (flag === 'EN') {
-      // 处理翻译结果
-      translations = translations.map(t => toCamelCase(t));
-    }
-    
 
-    // 显示翻译结果并让用户选择
+    translations = flag === 'EN' ? translations.map(toCamelCase) : translations;
+
     const selectedTranslation = await showTranslationChoices(translations);
     if (!selectedTranslation) return;
 
-    // 替换选中的文本
     await replaceSelectedText(selectedTranslation);
   } catch (error) {
-    // 由于withProgress内部已处理取消逻辑，这里主要处理其他错误
-    vscode.window.showErrorMessage('Translation failed: ' + error);
+    vscode.window.showErrorMessage(`Translation failed: ${error}`);
   }
 }
 
