@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import fetch from 'node-fetch'; // 确保已经安装了node-fetch
+import { ITranslationService } from './ITranslationService';
 
 interface TranslationResult {
     translations: Array<{ text: string }>;
 }
 
-export class DeepLService {
+export class DeepLService implements ITranslationService {
     private apiKey: string;
     private baseUrl: string;
     private translateAPI: string;
@@ -28,7 +29,7 @@ export class DeepLService {
      * @param targetLang 目标语言代码（如"ZH"）
      * @returns 翻译结果数组
      */
-    async translateText(text: string, sourceLang: string, targetLang: string): Promise<string[]> {
+    async translateText(text: string, targetLang: string, sourceLang: string): Promise<string[]> {
         const url = this.genUrl(text, sourceLang, targetLang)
 
         try {
@@ -40,13 +41,5 @@ export class DeepLService {
             vscode.window.showErrorMessage('Translation failed');
             return [];
         }
-    }
-
-    translateToEnglish(text: string): Promise<string[]> {
-        return this.translateText(text, 'ZH', 'EN');
-    }
-
-    translateToChinese(text: string): Promise<string[]> {
-        return this.translateText(text, 'EN', 'ZH');
     }
 }
