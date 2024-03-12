@@ -1,70 +1,97 @@
 import * as vscode from 'vscode';
-import { getSelectedText, replaceSelectedText, toCamelCase, withProgress } from '../utils/index';
-import { DeepLService } from '../translation/deepl';
-// import { VolcanoService } from '../translation/volcanoService';
-import { ITranslationService } from '../translation/ITranslationService';
+import { getSelectedText, replaceSelectedText, withProgress, showTranslationChoices, showErrorMessage, gelAllPlatform, delPlatformFlag, insertTextBelowSelectionByComment, showInformationMessage, getOperationIdentifier } from '@/utils';
+import { DeepLService, BaiduService, TencentService } from '@/translation';
+import type { ITranslationService, ITranslateTextResult } from '@/translation';
 
-/**
- * 显示翻译结果并让用户选择
- * @param translations 翻译结果数组
- * @returns 用户选择的翻译结果
- */
-async function showTranslationChoices(translations: string[]): Promise<string | undefined> {
-  const selected = await vscode.window.showQuickPick(translations, {
-    placeHolder: 'Choose your preferred translation',
-  });
-  return selected;
-}
-
-
+// 平台列表
 const translationServices: ITranslationService[] = [
   new DeepLService(),
-  // new VolcanoService(),
-  // new VolcanoService(),
-  // new TencentService(),
-  // new BaiduService(),
+  new TencentService(),
+  new BaiduService(),
 ];
 
+/**
+ * 翻译文本
+ *
+ * @param targetLang 目标语言
+ * @param sourceLang 源语言
+ * @returns 翻译后的文本
+ */
 async function translateText(targetLang: string, sourceLang: string) {
+  // 获取选中的文本
   const text = getSelectedText();
   if (!text) {
-    vscode.window.showInformationMessage('No text selected');
+    showInformationMessage('No text selected')
     return;
   }
 
-  await withProgress<string[][]>(
-    'Translating...',
-    // @ts-ignore
-    async (progress, token) => {
+  try {
+    // 当前选中的翻译服务
+    let currentSelect: ITranslateTextResult = {} as ITranslateTextResult
 
-      const translationsPromises = translationServices.map(service =>
-        service.translateText(text, targetLang, sourceLang).catch(error => {
-          // Log the error and return an empty array to ensure Promise.all settles all promises.
-          console.error(error);
-          return [];
-        })
-      );
+    // 获取翻译结果, 并且增加loading提示
+    const allTranslations = await withProgress<ITranslateTextResult[]>(
+      'Translating...',
+      // @ts-ignore
+      async (progress, token) => {
 
-      const translationsResults = await Promise.all(translationsPromises);
+        const translationsPromises = translationServices.map(service =>
+          service.translateText(text, targetLang, sourceLang).catch(error => {
+            console.error(error);
+            return [];
+          })
+        );
 
-      // Flatten the array of arrays and remove any empty translations.
-      const allTranslations = translationsResults.flat().filter(translation => translation.length > 0);
+        const translationsResults = await Promise.all(translationsPromises);
 
-      if (allTranslations.length === 0) {
-        // If there are no successful translations, throw an error.
-        throw new Error('All translation services failed.');
+        const allTranslations = translationsResults.flat().filter(translation => translation.translation.length > 0);
+
+        if (allTranslations.length === 0) {
+          showErrorMessage('All translation services failed.')
+          return []
+        }
+
+        return allTranslations
       }
+    )
 
-      const selectedTranslation = await showTranslationChoices(allTranslations);
-      if (!selectedTranslation) return;
+    // 提取翻译结果
+    const selectAllTranslations = allTranslations.map(item => item.translation);
 
+    // 获取选择的翻译结果
+    let selectedTranslation = await showTranslationChoices(selectAllTranslations);
+    if (!selectedTranslation) return;
+
+    // 当前选中的翻译服务
+    currentSelect = allTranslations.find(item => item.translation === selectedTranslation) as ITranslateTextResult
+    // {translation: 'Calling Tencent Maps --by-deepl', originText: '调用腾讯地图', sourceLang: 'ZH', targetLang: 'EN', platform: 'deepl'}
+    // console.log('currentSelect', currentSelect)
+
+    // 删除平台标识
+    selectedTranslation = delPlatformFlag(selectedTranslation, gelAllPlatform(translationServices))
+
+    // 获取操作标识：是插入到选中文本下方还是替换选中文本
+    const flag = getOperationIdentifier(currentSelect, selectedTranslation)
+
+    if (flag === 'insert') {
+      // 插入到选中文本下方
+      await insertTextBelowSelectionByComment(selectedTranslation)
+    } else {
+      // 替换选中文本
       await replaceSelectedText(selectedTranslation);
-    }
-  ).catch(error => {
-    // This will only be triggered if all translation services fail.
-    vscode.window.showErrorMessage(`Translation failed: ${error}`);
-  });
+    }    
+  } catch (error) {
+    showErrorMessage(`Translation failed: ${error}`);
+  }
 }
 
+// 将选中文本翻译成中文
 export const translateToChinese = () => translateText('ZH', 'EN');
+
+// 将选中文本翻译成英文
 export const translateToEnglish = () => translateText('EN', 'ZH');
+
+// 函数名称生成
+export const generateFunctionName = () => {
+  vscode.window.showInformationMessage('功能正在开发中...')
+};

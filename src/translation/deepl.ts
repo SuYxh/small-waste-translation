@@ -1,21 +1,24 @@
-import * as vscode from 'vscode';
 import fetch from 'node-fetch'; // 确保已经安装了node-fetch
-import { ITranslationService } from './ITranslationService';
+import { ITranslationService, ITranslateTextResult } from './type';
+import { showErrorMessage, genErrorMsg, addPlatformFlag, convertTranslationResults} from '@/utils';
 
-interface TranslationResult {
-    translations: Array<{ text: string }>;
-}
+// console.log('DEEPL_API_KEY', process.env.DEEPL_API_KEY)
 
 export class DeepLService implements ITranslationService {
+    public platform: string = 'deepl';
     private apiKey: string;
     private baseUrl: string;
     private translateAPI: string;
 
 
     constructor() {
-        this.apiKey = '16acc099-70f2-42fd-a6ae-b30c9acf7877:fx';
+        this.apiKey = process.env.DEEPL_API_KEY as string;
         this.baseUrl = 'https://api-free.deepl.com'
         this.translateAPI = '/v2/translate'
+    }
+
+    getPlatform(): string {
+        return this.platform;
     }
 
     genUrl(text: string, sourceLang: string, targetLang: string): string {
@@ -29,16 +32,28 @@ export class DeepLService implements ITranslationService {
      * @param targetLang 目标语言代码（如"ZH"）
      * @returns 翻译结果数组
      */
-    async translateText(text: string, targetLang: string, sourceLang: string): Promise<string[]> {
+    async translateText(text: string, targetLang: string, sourceLang: string): Promise<ITranslateTextResult[]> {
         const url = this.genUrl(text, sourceLang, targetLang)
 
         try {
             const response = await fetch(url, { method: 'POST' });
-            const data: TranslationResult = await response.json() as any;
-            return data.translations.map(t => t.text);
+            const data = await response.json() as any;
+
+            if (data.translations) {
+                // 添加标识
+                const _data = data.translations.map((t: any) => addPlatformFlag(t.text, this.platform));
+                // 转换结构
+                return convertTranslationResults(_data, text, sourceLang, targetLang, this.platform)
+            } else {
+                const errorMsg = genErrorMsg('deepl translation error')
+                console.error(errorMsg);
+                showErrorMessage(errorMsg)
+                return []
+            }
         } catch (error) {
-            console.error('Translation error:', error);
-            vscode.window.showErrorMessage('Translation failed');
+            const errorMsg = genErrorMsg('deepl translation fail')
+            console.error(errorMsg);
+            showErrorMessage(errorMsg)
             return [];
         }
     }

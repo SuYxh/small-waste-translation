@@ -1,13 +1,14 @@
 {
   "name": "small-waste-translation",
   "displayName": "小废物翻译",
-  "description": "翻译",
+  "description": "翻译、腾讯翻译、百度翻译、免费翻译、deepl翻译、火山翻译",
   "version": "0.0.1",
   "publisher": "y170088888",
   "repository": {
     "type": "git",
     "url": "https://github.com/SuYxh/small-waste-translation-docs"
   },
+  "icon": "xfw.png",
   "engines": {
     "vscode": "^1.87.0"
   },
@@ -15,15 +16,20 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:vue",
+    "onLanguage:markdown",
+    "onLanguage:html",
+    "onLanguage:css",
+    "onLanguage:sass",
+    "onLanguage:scss",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "small-waste-translation.helloWorld",
-        "title": "Hello World"
-      },
       {
         "command": "small-waste-translation.translateToEnglish",
         "title": "📝 翻译成英文"
@@ -59,7 +65,7 @@
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint src --ext ts --fix"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -69,6 +75,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.8",
     "@typescript-eslint/parser": "^5.59.8",
     "@vscode/test-electron": "^2.3.2",
+    "dotenv": "^16.4.5",
     "eslint": "^8.41.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
@@ -79,6 +86,7 @@
   },
   "dependencies": {
     "@types/node-fetch": "^2.6.11",
+    "crypto": "^1.0.1",
     "node-fetch": "^3.3.2"
   }
 }

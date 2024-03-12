@@ -1,0 +1,13 @@
+# DEEPL平台的 apikey
+DEEPL_API_KEY = ''
+
+# 百度平台
+BAIDU_APP_ID = ''
+BAIDU_APP_KEY = ''
+
+# 腾讯平台
+TENCENT_SECRET_ID = ''
+TENCENT_SECRET_KEY = ''
+
+# 翻译的文本超过此数字就会在选中的文本下方进行插入，否则是进行替换
+INSERTION_THRESHOLD = 8
