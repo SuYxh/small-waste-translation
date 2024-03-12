@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { getSelectedText, replaceSelectedText, withProgress, showTranslationChoices, showErrorMessage, gelAllPlatform, delPlatformFlag, insertTextBelowSelectionByComment, showInformationMessage, getOperationIdentifier } from '@/utils';
+import { getSelectedText, replaceSelectedText, withProgress, showTranslationChoices, showErrorMessage, gelAllPlatform, delPlatformFlag, insertTextBelowSelectionByComment, showInformationMessage, getOperationIdentifier, extractPenultimateJson, extractDataFromString } from '@/utils';
 import { DeepLService, BaiduService, TencentService } from '@/translation';
+import { chatProgress } from '@/ai';
 import type { ITranslationService, ITranslateTextResult } from '@/translation';
 
 // 平台列表
@@ -79,7 +80,7 @@ async function translateText(targetLang: string, sourceLang: string) {
     } else {
       // 替换选中文本
       await replaceSelectedText(selectedTranslation);
-    }    
+    }
   } catch (error) {
     showErrorMessage(`Translation failed: ${error}`);
   }
@@ -92,6 +93,33 @@ export const translateToChinese = () => translateText('ZH', 'EN');
 export const translateToEnglish = () => translateText('EN', 'ZH');
 
 // 函数名称生成
-export const generateFunctionName = () => {
-  vscode.window.showInformationMessage('功能正在开发中...')
+export const generateFunctionName = async () => {
+  // 获取选中的文本
+  const text = getSelectedText();
+  if (!text) {
+    showInformationMessage('No text selected')
+    return;
+  }
+
+  try {
+    const bufferData = await withProgress<ITranslateTextResult[]>(
+      '思考中...',
+      // @ts-ignore
+      async (progress, token) => {
+        const buffer = await chatProgress(text)
+        return buffer
+      }
+    )
+
+    const result: any = extractPenultimateJson(bufferData.toString())
+    if (result.text) {
+      const formatData: any = extractDataFromString(result.text)
+  
+      let selected = await showTranslationChoices(formatData.data ?? []);
+      if (!selected) return;
+      await replaceSelectedText(selected);
+    }
+  } catch (error) {
+    console.log('generateFunctionName-error', error);
+  }
 };

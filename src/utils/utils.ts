@@ -108,9 +108,51 @@ export function getOperationIdentifier(currentSelect: ITranslateTextResult, sele
   if (currentSelect.targetLang.toLocaleLowerCase() === 'en') {
     counter = selectText.split(' ').length
   } else {
-   // 中文
-   counter = selectText.length
+    // 中文
+    counter = selectText.length
   }
   // 获取操作标识：是插入到选中文本下方还是替换选中文本
   return counter > +insertionThreshold ? 'insert' : 'replace';
+}
+
+
+export function extractPenultimateJson(str: string): object | null {
+  // 按行分割字符串
+  const lines = str.trim().split('\n');
+
+  // 过滤出所有有效的JSON对象行
+  const jsonLines = lines.filter(line => line.startsWith('{') && line.endsWith('}'));
+
+
+  // 确保有足够的JSON对象行
+  if (jsonLines.length < 2) {
+    console.error('没有足够的JSON对象行');
+    return null;
+  }
+
+  // 获取倒数第二个JSON对象行
+  const penultimateJsonLine = jsonLines[jsonLines.length - 2];
+
+  try {
+    // 尝试将该行解析为JSON对象
+    return JSON.parse(penultimateJsonLine);
+  } catch (error) {
+    console.error('JSON解析错误:', error);
+    return null;
+  }
+}
+
+export function extractDataFromString(str: string): object | null {
+  // 正则表达式匹配{}内的内容
+  const match = str.match(/\{.*?\}/gs);
+  if (match && match[0]) {
+      try {
+          // 将匹配到的字符串转换为对象
+          const data = JSON.parse(match[0]);
+          return data;
+      } catch (error) {
+          console.error("解析JSON时出错:", error);
+      }
+  }
+  return null;
 }

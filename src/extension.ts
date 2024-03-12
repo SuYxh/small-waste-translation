@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import { registerCommand } from '@/utils';
-import { translateToChinese, translateToEnglish, generateFunctionName } from '@/core';
+import { registerCommands } from './command';
+import { init } from './init';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "small-waste-translation" is now active!');
+	
+	init(context)
 
-	registerCommand(context, 'small-waste-translation.translateToChinese', translateToChinese)
-	registerCommand(context, 'small-waste-translation.translateToEnglish', translateToEnglish)
-	registerCommand(context, 'small-waste-translation.generateFunctionName', generateFunctionName)
+	registerCommands(context)
 }
 
 export function deactivate() {}
