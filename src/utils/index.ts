@@ -8,4 +8,6 @@ export * from './DIContainer'
 export * from './storage'
 
 
-
+export * from './ConfigService'
+export * from './UsageLimitService'
+export * from './UserService'

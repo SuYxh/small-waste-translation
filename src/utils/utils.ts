@@ -1,4 +1,10 @@
 import type { ITranslationService, ITranslateTextResult } from '@/translation';
+import { DIContainer } from './DIContainer';
+import { LocalStorageService } from './storage';
+import { UserService } from './UserService';
+import { LOCAL_STORAGE_SERVICE, USER_SERVICE, TRANSLATE_CALL_TIMES, TRANSLATE, GENERATE_FUNCTION_NAME, GENERATE_FUNCTION_NAME_CALL_TIMES } from '@/const';
+import { UsageLimitService } from './UsageLimitService';
+import { showErrorMessage } from './vscode';
 
 /**
  * 将字符串转换为驼峰命名法
@@ -155,4 +161,42 @@ export function extractDataFromString(str: string): object | null {
       }
   }
   return null;
+}
+
+
+interface IUseFeature {
+  successCb: Function
+  apiName: string 
+  failCb?: Function
+}
+
+export function getAPIDefaultCallTimes(apiName:string) {
+  const config: any = {
+    [TRANSLATE]: TRANSLATE_CALL_TIMES,
+    [GENERATE_FUNCTION_NAME]: GENERATE_FUNCTION_NAME_CALL_TIMES
+  }
+
+  return config[apiName] ?? -1
+}
+
+export function useFeatureTranslate(options: IUseFeature) {
+  const { successCb, apiName, failCb } = options
+
+  const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+  const userService = DIContainer.instance.get<UserService>(USER_SERVICE);
+ 
+  const usageLimitService = new UsageLimitService(localStorageService, userService);
+
+  if (usageLimitService.canUseFeature(apiName)) {
+      usageLimitService.recordFeatureUse(apiName);
+      if (typeof successCb === 'function') {
+        successCb()
+      }
+  } else {
+      if (typeof failCb === 'function') {
+        failCb()
+      } else {
+        showErrorMessage('普通用户每天使用该功能的次数已达到上限!')
+      } 
+  }
 }

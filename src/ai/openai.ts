@@ -75,6 +75,7 @@ export async function chatProgress(text: string): Promise<any> {
       body: JSON.stringify(postData),
       headers: {
         'Content-Type': 'application/json',
+        // TODO: 判断一下如果获取的 token 不存在，则调用 handleOpenaiAccessToken 重新获取
         'Authorization': `Bearer ${localStorageService.get(OPENAI_ACCESS_TOKEN)}`
       }
     })
@@ -82,7 +83,8 @@ export async function chatProgress(text: string): Promise<any> {
         if (!response.ok) {
           reject(Error('chatProgress -- Network response was not ok'))
         }
-        return response.buffer();
+        // return response.buffer();
+        return response.arrayBuffer()
         // return response.json();
       })
       .then((buffer: any) => {

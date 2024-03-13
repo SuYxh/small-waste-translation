@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { getSelectedText, replaceSelectedText, withProgress, showTranslationChoices, showErrorMessage, gelAllPlatform, delPlatformFlag, insertTextBelowSelectionByComment, showInformationMessage, getOperationIdentifier, extractPenultimateJson, extractDataFromString } from '@/utils';
+import { getSelectedText, replaceSelectedText, withProgress, showTranslationChoices, showErrorMessage, gelAllPlatform, delPlatformFlag, insertTextBelowSelectionByComment, showInformationMessage, getOperationIdentifier, extractPenultimateJson, extractDataFromString, useFeatureTranslate, UsageLimitService, DIContainer } from '@/utils';
 import { DeepLService, BaiduService, TencentService } from '@/translation';
 import { chatProgress } from '@/ai';
+import { TRANSLATE, GENERATE_FUNCTION_NAME, USAGE_LIMIT_SERVICE } from '@/const';
 import type { ITranslationService, ITranslateTextResult } from '@/translation';
 
 // 平台列表
@@ -87,13 +88,26 @@ async function translateText(targetLang: string, sourceLang: string) {
 }
 
 // 将选中文本翻译成中文
-export const translateToChinese = () => translateText('ZH', 'EN');
+export const translateToChinese = () => {
+  const fn = translateText.bind(this, 'ZH', 'EN')
+  useFeatureTranslate({
+    successCb: fn,
+    apiName: TRANSLATE
+  })
+}
+
 
 // 将选中文本翻译成英文
-export const translateToEnglish = () => translateText('EN', 'ZH');
+// export const translateToEnglish = () => translateText('EN', 'ZH');
+export const translateToEnglish = () => {
+  const fn = translateText.bind(this, 'EN', 'ZH')
+  useFeatureTranslate({
+    successCb: fn,
+    apiName: TRANSLATE
+  })
+}
 
-// 函数名称生成
-export const generateFunctionName = async () => {
+async function askToChatGPT() {
   // 获取选中的文本
   const text = getSelectedText();
   if (!text) {
@@ -102,19 +116,22 @@ export const generateFunctionName = async () => {
   }
 
   try {
-    const bufferData = await withProgress<ITranslateTextResult[]>(
+    const arrayBuffer = await withProgress<any>(
       '思考中...',
       // @ts-ignore
       async (progress, token) => {
-        const buffer = await chatProgress(text)
-        return buffer
+        const arrayBuffer = await chatProgress(text)
+        return arrayBuffer
       }
     )
 
-    const result: any = extractPenultimateJson(bufferData.toString())
+    // 将 ArrayBuffer 转换为 Buffer
+    const buffer = Buffer.from(arrayBuffer);
+
+    const result: any = extractPenultimateJson(buffer.toString())
     if (result.text) {
       const formatData: any = extractDataFromString(result.text)
-  
+
       let selected = await showTranslationChoices(formatData.data ?? []);
       if (!selected) return;
       await replaceSelectedText(selected);
@@ -122,4 +139,28 @@ export const generateFunctionName = async () => {
   } catch (error) {
     console.log('generateFunctionName-error', error);
   }
+}
+
+
+// 函数名称生成
+export const generateFunctionName = async () => {
+  useFeatureTranslate({
+    successCb: askToChatGPT,
+    apiName: GENERATE_FUNCTION_NAME
+  })
 };
+
+
+export const resetCallTime = () => {
+  const usageLimitService = DIContainer.instance.get<UsageLimitService>(USAGE_LIMIT_SERVICE);
+  // TODO: vip 用户才可以使用这个重置
+  usageLimitService.initializeDailyLimits()
+  showInformationMessage('重置成功')
+}
+
+
+export const getRestCallTime = () => {
+  const usageLimitService = DIContainer.instance.get<UsageLimitService>(USAGE_LIMIT_SERVICE);
+  const text = usageLimitService.getRemainingUsageText()
+  showInformationMessage(text)
+}

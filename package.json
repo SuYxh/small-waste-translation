@@ -2,7 +2,7 @@
   "name": "small-waste-translation",
   "displayName": "小废物翻译",
   "description": "翻译、腾讯翻译、百度翻译、免费翻译、deepl翻译、火山翻译",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "y170088888",
   "repository": {
     "type": "git",
@@ -29,6 +29,21 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "小废物翻译",
+      "properties": {
+        "small-waste-translation.username": {
+          "type": "string",
+          "default": "",
+          "description": "用户名"
+        },
+        "small-waste-translation.password": {
+          "type": "string",
+          "default": "",
+          "description": "密码"
+        }
+      }
+    },
     "commands": [
       {
         "command": "small-waste-translation.translateToEnglish",
@@ -41,6 +56,14 @@
       {
         "command": "small-waste-translation.generateFunctionName",
         "title": "📝 生成函数名"
+      },
+      {
+        "command": "small-waste-translation.resetCallTime",
+        "title": "resetCallTime"
+      },
+      {
+        "command": "small-waste-translation.getRestCallTime",
+        "title": "getRestCallTime"
       }
     ],
     "menus": {
