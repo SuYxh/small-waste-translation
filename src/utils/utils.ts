@@ -1,11 +1,8 @@
 import type { ITranslationService, ITranslateTextResult } from '@/type';
-import { DIContainer } from './DIContainer';
-import { LocalStorageService } from './storage';
-import { UserService } from './UserService';
 import { LOCAL_STORAGE_SERVICE, USER_SERVICE, TRANSLATE_CALL_TIMES, TRANSLATE, GENERATE_FUNCTION_NAME, GENERATE_FUNCTION_NAME_CALL_TIMES } from '@/const';
-import { UsageLimitService } from './UsageLimitService';
-import { showErrorMessage } from './vscode';
 import { IUseFeature } from '@/type';
+import { DIContainer, LocalStorageService, UserService, UsageLimitService } from '@/service';
+import { showErrorMessage } from './vscode';
 
 /**
  * 将字符串转换为驼峰命名法

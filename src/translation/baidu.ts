@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'; // 确保已经安装了node-fetch
 import { createHash } from 'crypto';
-import { ITranslationService, ITranslateTextResult } from './type';
 import { showErrorMessage, genErrorMsg, addPlatformFlag, convertTranslationResults } from '@/utils';
+import type { ITranslationService, ITranslateTextResult } from '@/type';
 
 // console.log('BAIDU_APP_ID', process.env.BAIDU_APP_ID)
 // console.log('BAIDU_APP_KEY', process.env.BAIDU_APP_KEY)

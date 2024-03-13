@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'; // 确保已经安装了node-fetch
-import { ITranslationService, ITranslateTextResult } from './type';
 import { showErrorMessage, genErrorMsg, addPlatformFlag, convertTranslationResults} from '@/utils';
+import type { ITranslationService, ITranslateTextResult } from '@/type';
 
 // console.log('DEEPL_API_KEY', process.env.DEEPL_API_KEY)
 

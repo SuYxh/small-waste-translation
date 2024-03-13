@@ -1,4 +1,4 @@
-import { LocalStorageService } from './storage';
+import { LocalStorageService } from './LocalStorageService';
 
 export class UserService {
   constructor(private localStorageService: LocalStorageService) {}

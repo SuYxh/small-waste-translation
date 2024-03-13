@@ -1,7 +1,7 @@
-import { LocalStorageService } from './storage';
+import { LocalStorageService } from './LocalStorageService';
 import { UserService } from './UserService';
 import { TRANSLATE, GENERATE_FUNCTION_NAME } from '@/const';
-import { getAPIDefaultCallTimes } from './utils';
+import { getAPIDefaultCallTimes } from '@/utils';
 
 export class UsageLimitService {
     constructor(private localStorageService: LocalStorageService, private userService: UserService) { }

@@ -1,7 +1,8 @@
 import fetch from 'node-fetch';
-import { DIContainer, LocalStorageService, showErrorMessage } from '@/utils';
+import { showErrorMessage } from '@/utils';
+import { DIContainer, LocalStorageService } from '@/service';
 import { LOCAL_STORAGE_SERVICE, OPENAI_ACCESS_TOKEN } from '@/const';
-import { ConfigService } from '@/utils/ConfigService';
+import { ConfigService } from '@/service/ConfigService';
 import { IAIService } from '@/type';
 
 export class OpenaiService implements IAIService {
@@ -134,7 +135,6 @@ export class OpenaiService implements IAIService {
       "model": "gpt-3.5-turbo"
     }
     
-    console.log('genFuncName-->postData', postData)
     return this.chat(postData)
   }
 }

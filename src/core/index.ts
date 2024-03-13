@@ -1,4 +1,5 @@
-import {  showInformationMessage, useFeatureTranslate, UsageLimitService, DIContainer } from '@/utils';
+import {  showInformationMessage, useFeatureTranslate } from '@/utils';
+import { UsageLimitService, DIContainer } from '@/service';
 import { TRANSLATE, GENERATE_FUNCTION_NAME, USAGE_LIMIT_SERVICE } from '@/const';
 import { translateText } from '@/translation';
 import { askToAI } from '@/ai';

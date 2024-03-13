@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { LOCAL_STORAGE_SERVICE, USER_SERVICE, USAGE_LIMIT_SERVICE } from '@/const';
-import { DIContainer, LocalStorageService, UserService, UsageLimitService } from '@/utils';
+import { DIContainer, LocalStorageService, UserService, UsageLimitService } from '@/service';
 
 export async function init(context: vscode.ExtensionContext) {
   // 注册 LOCAL_STORAGE_SERVICE

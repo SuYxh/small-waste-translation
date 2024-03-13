@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { createHmac, createHash } from 'crypto';
-import { ITranslationService, ITranslateTextResult } from './type';
 import { showErrorMessage, genErrorMsg, convertTranslationResults, addPlatformFlag } from '@/utils';
+import type { ITranslationService, ITranslateTextResult } from '@/type';
 
 // console.log('TENCENT_SECRET_ID', process.env.TENCENT_SECRET_ID)
 // console.log('TENCENT_SECRET_KEY', process.env.TENCENT_SECRET_KEY)

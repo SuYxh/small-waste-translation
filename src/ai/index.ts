@@ -31,7 +31,6 @@ export async function askToAI() {
     const buffer = Buffer.from(arrayBuffer);
 
     const result: any = extractPenultimateJson(buffer.toString())
-    console.log('result-->', result.text)
 
     if (result.text) {
       const formatData: any = extractDataFromString(result.text)
