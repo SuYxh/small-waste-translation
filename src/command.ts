@@ -12,5 +12,5 @@ export function registerCommands(context: vscode.ExtensionContext) {
 	registerCommand(context, 'small-waste-translation.resetCallTime', resetCallTime)
 	registerCommand(context, 'small-waste-translation.getRestCallTime', getRestCallTime)
 	registerCommand(context, 'small-waste-translation.login', login)
-	registerCommand(context, 'small-waste-translation.login', loginout)
+	registerCommand(context, 'small-waste-translation.loginout', loginout)
 }
