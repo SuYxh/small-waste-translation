@@ -1,10 +1,11 @@
-import type { ITranslationService, ITranslateTextResult } from '@/translation';
+import type { ITranslationService, ITranslateTextResult } from '@/type';
 import { DIContainer } from './DIContainer';
 import { LocalStorageService } from './storage';
 import { UserService } from './UserService';
 import { LOCAL_STORAGE_SERVICE, USER_SERVICE, TRANSLATE_CALL_TIMES, TRANSLATE, GENERATE_FUNCTION_NAME, GENERATE_FUNCTION_NAME_CALL_TIMES } from '@/const';
 import { UsageLimitService } from './UsageLimitService';
 import { showErrorMessage } from './vscode';
+import { IUseFeature } from '@/type';
 
 /**
  * 将字符串转换为驼峰命名法
@@ -122,18 +123,24 @@ export function getOperationIdentifier(currentSelect: ITranslateTextResult, sele
 }
 
 
-export function extractPenultimateJson(str: string): object | null {
+export function extractPenultimateJson(str: string): object | string {
+
   // 按行分割字符串
   const lines = str.trim().split('\n');
 
   // 过滤出所有有效的JSON对象行
   const jsonLines = lines.filter(line => line.startsWith('{') && line.endsWith('}'));
 
-
   // 确保有足够的JSON对象行
   if (jsonLines.length < 2) {
-    console.error('没有足够的JSON对象行');
-    return null;
+    try {
+      const data = JSON.parse(jsonLines[0]);
+      console.error('没有足够的JSON对象行-1');
+      return data.message ??  ''
+    } catch (error) {
+      console.error('没有足够的JSON对象行-2');
+      return '没有足够的JSON对象行';
+    }
   }
 
   // 获取倒数第二个JSON对象行
@@ -144,7 +151,7 @@ export function extractPenultimateJson(str: string): object | null {
     return JSON.parse(penultimateJsonLine);
   } catch (error) {
     console.error('JSON解析错误:', error);
-    return null;
+    return '没有足够的JSON对象行';
   }
 }
 
@@ -164,11 +171,6 @@ export function extractDataFromString(str: string): object | null {
 }
 
 
-interface IUseFeature {
-  successCb: Function
-  apiName: string 
-  failCb?: Function
-}
 
 export function getAPIDefaultCallTimes(apiName:string) {
   const config: any = {

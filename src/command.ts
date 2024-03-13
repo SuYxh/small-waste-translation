@@ -3,10 +3,12 @@ import { translateToChinese, translateToEnglish, generateFunctionName, resetCall
 import { registerCommand } from '@/utils';
 
 export function registerCommands(context: vscode.ExtensionContext) {
+	// 功能命令
   registerCommand(context, 'small-waste-translation.translateToChinese', translateToChinese)
 	registerCommand(context, 'small-waste-translation.translateToEnglish', translateToEnglish)
 	registerCommand(context, 'small-waste-translation.generateFunctionName', generateFunctionName)
 
+	// 辅助命令
 	registerCommand(context, 'small-waste-translation.resetCallTime', resetCallTime)
 	registerCommand(context, 'small-waste-translation.getRestCallTime', getRestCallTime)
 }
