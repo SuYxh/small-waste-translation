@@ -35,12 +35,37 @@
         "small-waste-translation.username": {
           "type": "string",
           "default": "",
-          "description": "用户名"
+          "description": "请输入用户名"
         },
         "small-waste-translation.password": {
           "type": "string",
           "default": "",
-          "description": "密码"
+          "description": "请输入密码"
+        },
+        "small-waste-translation.deeplKey": {
+          "type": "string",
+          "default": "",
+          "description": "请输入deeplKey, 获取方式请看README.md"
+        },
+        "small-waste-translation.baiduAppId": {
+          "type": "string",
+          "default": "",
+          "description": "请输入baiduAppId, 获取方式请看README.md"
+        },
+        "small-waste-translation.baiduAppKey": {
+          "type": "string",
+          "default": "",
+          "description": "请输入baiduAppKey, 获取方式请看README.md"
+        },
+        "small-waste-translation.tencentSecertId": {
+          "type": "string",
+          "default": "",
+          "description": "请输入tencentSecertId, 获取方式请看README.md"
+        },
+        "small-waste-translation.tencentSecertKey": {
+          "type": "string",
+          "default": "",
+          "description": "请输入tencentSecertKey, 获取方式请看README.md"
         }
       }
     },
@@ -64,6 +89,14 @@
       {
         "command": "small-waste-translation.getRestCallTime",
         "title": "getRestCallTime"
+      },
+      {
+        "command": "small-waste-translation.login",
+        "title": "登录小废物"
+      },
+      {
+        "command": "small-waste-translation.logout",
+        "title": "退出小废物"
       }
     ],
     "menus": {

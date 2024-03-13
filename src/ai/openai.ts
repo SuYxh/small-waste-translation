@@ -1,9 +1,42 @@
 import fetch from 'node-fetch';
-import { showErrorMessage } from '@/utils';
+import { showErrorMessage, setSystemUser } from '@/utils';
 import { DIContainer, LocalStorageService } from '@/service';
-import { LOCAL_STORAGE_SERVICE, OPENAI_ACCESS_TOKEN } from '@/const';
-import { ConfigService } from '@/service/ConfigService';
+import { LOCAL_STORAGE_SERVICE, OPENAI_ACCESS_TOKEN, USERNAME, PASSWORD } from '@/const';
 import { IAIService } from '@/type';
+
+export function openaiLogin(mobile: string, password: string) {
+  return new Promise<any>((resolve, reject) => {
+
+    // 判断当前用户是否为系统用户
+    setSystemUser(mobile === process.env.USERNAME)
+
+    const postData = {
+      mobile,
+      password,
+    };
+    const url = 'https://openai.huat.xyz/v1/login';
+
+    fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(postData),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          reject(Error('Network response was not ok'))
+        }
+        return response.json();
+      })
+      .then((data: any) => {
+        resolve(data)
+      })
+      .catch(error => {
+        reject(new Error(`login error: ${error}`))
+      });
+  })
+}
 
 export class OpenaiService implements IAIService {
   public validity: number = 24 * 60 * 60 * 1000;
@@ -17,36 +50,18 @@ export class OpenaiService implements IAIService {
   }
 
   getAccessToken(): Promise<any> {
-    return new Promise<void>((resolve, reject) => {
-      const username = ConfigService.getUsername()
-      const password = ConfigService.getPassword()
 
-      const postData = {
-        mobile: username || process.env.USERNAME,
-        password: password || process.env.PASSWORD,
-      };
-      const url = 'https://openai.huat.xyz/v1/login';
-  
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(postData),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => {
-          if (!response.ok) {
-            reject(Error('Network response was not ok'))
-          }
-          return response.json();
-        })
-        .then((data: any) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(new Error(`There was a problem with your fetch operation: ${error}`))
-        });
-    })
+    const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+    const localUsername = localStorageService.get<string>(USERNAME) ?? ''
+    const localPassword = localStorageService.get<string>(PASSWORD) ?? ''
+
+    const defaulUsername = process.env.USERNAME as string
+    const defaulPassword = process.env.PASSWORD as string
+
+    const username = localUsername || defaulUsername
+    const password = localPassword || defaulPassword
+
+    return openaiLogin(username, password)
   }
 
   cleanAccessToken() {
@@ -69,11 +84,12 @@ export class OpenaiService implements IAIService {
           this.accessToken = accessData.data;
         } else {
           // 说明 token 获取失败
-          console.log('accessToken 获取失败', accessData)
-          showErrorMessage('您配置的用户信息错误！')
+          console.log('获取 openai token 失败', accessData)
+          showErrorMessage(accessData.message ?? '获取 openai token 失败')
+          this.cleanAccessToken()
         }       
       } catch (error) {
-        console.log('获取openai token失败', error);
+        console.log('获取openai Token 失败', error);
       }
     }
   }
@@ -89,14 +105,14 @@ export class OpenaiService implements IAIService {
           accessToken = accessData.data;
         } else {
           console.log('chat-accessToken 获取失败', accessData)
+          this.cleanAccessToken()
           reject(new Error(accessData.message))
+          return
         }
       }
 
       const url = 'https://openai.huat.xyz/chat-process';
   
-      console.log('accessToken-->', accessToken)
-
       fetch(url, {
         method: 'POST',
         body: JSON.stringify(postData),

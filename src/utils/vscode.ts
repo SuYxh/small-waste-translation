@@ -1,5 +1,15 @@
 import * as vscode from 'vscode';
 
+export function showInputBox(prompt: string, placeHolder: string) {
+  return new Promise<string>(async (resolve, reject) => {
+    const usernameInput = await vscode.window.showInputBox({
+      prompt,
+      placeHolder
+    });
+    resolve(usernameInput ?? '')
+  })
+}
+
 /**
  * 显示翻译结果并让用户选择
  * @param translations 翻译结果数组
@@ -41,7 +51,7 @@ export function showInformationMessage(message: string) {
  */
 export function registerCommand(context: vscode.ExtensionContext, commandName: string, callback: () => any) {
   const disposable = vscode.commands.registerCommand(commandName, callback);
-	context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable);
 }
 
 
@@ -66,8 +76,8 @@ export const replaceSelectedText = async (newText: string): Promise<void> => {
   if (!editor) return;
 
   await editor.edit((editBuilder) => {
-      const selection = editor.selection;
-      editBuilder.replace(selection, newText);
+    const selection = editor.selection;
+    editBuilder.replace(selection, newText);
   });
 };
 
@@ -130,10 +140,10 @@ export const insertTextBelowSelection = async (newText: string): Promise<void> =
   if (!editor) return;
 
   await editor.edit((editBuilder) => {
-      const selection = editor.selection;
-      const line = selection.end.line;
-      const position = new vscode.Position(line + 1, 0);
-      editBuilder.insert(position, newText + '\n');
+    const selection = editor.selection;
+    const line = selection.end.line;
+    const position = new vscode.Position(line + 1, 0);
+    editBuilder.insert(position, newText + '\n');
   });
 };
 
@@ -143,26 +153,27 @@ export const insertTextBelowSelection = async (newText: string): Promise<void> =
  * @param task 要执行的异步任务。
  */
 export function withProgress<T>(
-    title: string,
-    task: (progress: vscode.Progress<{ increment?: number }>, token: vscode.CancellationToken) => Promise<T>
+  title: string,
+  task: (progress: vscode.Progress<{ increment?: number }>, token: vscode.CancellationToken) => Promise<T>
 ): Promise<T> {
-    return new Promise((resolve, reject) => {
-        vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: title,
-            cancellable: true,
-        }, async (progress, token) => {
-            token.onCancellationRequested(() => {
-                console.log("User canceled the long running operation");
-                reject('Operation cancelled by the user');
-            });
+  return new Promise((resolve, reject) => {
+    vscode.window.withProgress({
+      location: vscode.ProgressLocation.Notification,
+      title: title,
+      cancellable: true,
+    }, async (progress, token) => {
+      token.onCancellationRequested(() => {
+        console.log("User canceled the long running operation");
+        reject('Operation cancelled by the user');
+      });
 
-            try {
-                const result = await task(progress, token);
-                resolve(result);
-            } catch (error) {
-                reject(error);
-            }
-        });
+      try {
+        const result = await task(progress, token);
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
     });
+  });
 }
+

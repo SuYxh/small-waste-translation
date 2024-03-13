@@ -2,12 +2,24 @@ import * as vscode from 'vscode';
 import { PLUGIN_NAME } from '@/const';
 
 export class ConfigService {
-    public static getUsername(): string {
-        return vscode.workspace.getConfiguration(PLUGIN_NAME).get<string>('username', '');
+    public static getDeeplKey(): string {
+        return vscode.workspace.getConfiguration(PLUGIN_NAME).get<string>('deeplKey', '');
     }
 
-    public static getPassword(): string {
-        return vscode.workspace.getConfiguration(PLUGIN_NAME).get<string>('password', '');
+    public static getBaiduAppId(): string {
+        return vscode.workspace.getConfiguration(PLUGIN_NAME).get<string>('baiduAppId', '');
+    }
+
+    public static getBaiduAppKey(): string {
+        return vscode.workspace.getConfiguration(PLUGIN_NAME).get<string>('baiduAppKey', '');
+    }
+
+    public static getTencentSecertId(): string {
+        return vscode.workspace.getConfiguration(PLUGIN_NAME).get<string>('tencentSecertId', '');
+    }
+
+    public static getTencentSecertKey(): string {
+        return vscode.workspace.getConfiguration(PLUGIN_NAME).get<string>('tencentSecertKey', '');
     }
 
     public static onDidChangeConfiguration(listener: (_: vscode.ConfigurationChangeEvent) => any) {

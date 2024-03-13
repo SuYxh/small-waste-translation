@@ -1,5 +1,5 @@
 import type { ITranslationService, ITranslateTextResult } from '@/type';
-import { LOCAL_STORAGE_SERVICE, USER_SERVICE, TRANSLATE_CALL_TIMES, TRANSLATE, GENERATE_FUNCTION_NAME, GENERATE_FUNCTION_NAME_CALL_TIMES } from '@/const';
+import { LOCAL_STORAGE_SERVICE, USER_SERVICE, TRANSLATE_CALL_TIMES, TRANSLATE, GENERATE_FUNCTION_NAME, GENERATE_FUNCTION_NAME_CALL_TIMES, IS_SYSTEM_USER } from '@/const';
 import { IUseFeature } from '@/type';
 import { DIContainer, LocalStorageService, UserService, UsageLimitService } from '@/service';
 import { showErrorMessage } from './vscode';
@@ -198,4 +198,16 @@ export function useFeatureTranslate(options: IUseFeature) {
         showErrorMessage('普通用户每天使用该功能的次数已达到上限!')
       } 
   }
+}
+
+export function setSystemUser(flag:boolean) {
+  const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+  localStorageService.set(IS_SYSTEM_USER, flag)
+}
+
+export function setSystemDefaultValue() {
+  const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+  localStorageService.set(IS_SYSTEM_USER, true);
+  localStorageService.set(TRANSLATE, 0);
+  localStorageService.set(GENERATE_FUNCTION_NAME, 0);
 }

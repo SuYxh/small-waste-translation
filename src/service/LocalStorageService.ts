@@ -1,4 +1,5 @@
 import { Memento } from 'vscode';
+import { setSystemDefaultValue } from '@/utils';
 
 export class LocalStorageService {
     constructor(private storage: Memento) {}
@@ -30,5 +31,26 @@ export class LocalStorageService {
 
     public async update<T>(key: string, value: T, expiryInMilliseconds: number): Promise<void> {
         await this.set(key, value, expiryInMilliseconds);
+    }
+
+    public async getAllDataAsString(): Promise<string> {
+        const allKeys = Object.keys(this.storage); // 使用Object.keys获取所有键
+        const allData: { [key: string]: any } = {};
+        for (const key of allKeys) {
+            allData[key] = await this.storage.get(key);
+        }
+        return JSON.stringify(allData);
+    }
+
+    public async clearAllData(): Promise<void> {
+        const allKeys = Object.keys(this.storage); // 使用Object.keys获取所有键
+        for (const key of allKeys) {
+            await this.storage.update(key, undefined);
+        }
+
+        // 清理结束后，设置系统默认值
+        setTimeout(() => {
+            setSystemDefaultValue()
+        }, 1000);
     }
 }
