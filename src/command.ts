@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { translateToChinese, translateToEnglish, generateFunctionName, resetCallTime, getRestCallTime, login, loginout } from '@/core';
+import { translateToChinese, translateToEnglish, generateFunctionName, resetCallTime, getRestCallTime, login, loginout, setting } from '@/core';
 import { registerCommand } from '@/utils';
 
 export function registerCommands(context: vscode.ExtensionContext) {
@@ -13,4 +13,7 @@ export function registerCommands(context: vscode.ExtensionContext) {
 	registerCommand(context, 'small-waste-translation.getRestCallTime', getRestCallTime)
 	registerCommand(context, 'small-waste-translation.login', login)
 	registerCommand(context, 'small-waste-translation.loginout', loginout)
+	registerCommand(context, 'small-waste-translation.setting', () => {
+		setting(context)
+	})
 }

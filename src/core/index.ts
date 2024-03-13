@@ -3,6 +3,8 @@ import { UsageLimitService, DIContainer, UserService, LocalStorageService } from
 import { TRANSLATE, GENERATE_FUNCTION_NAME, USAGE_LIMIT_SERVICE, LOCAL_STORAGE_SERVICE, IS_SYSTEM_USER } from '@/const';
 import { translateText } from '@/translation';
 import { askToAI } from '@/ai';
+import { openWebview } from '@/webview';
+import * as vscode from 'vscode';
 
 
 // 将选中文本翻译成中文
@@ -66,4 +68,10 @@ export const loginout = () => {
   const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
   const userService = new UserService(localStorageService) 
   userService.logout()
+}
+
+
+export const setting = (context: vscode.ExtensionContext) => {
+  console.log('setting')
+  openWebview(context)
 }

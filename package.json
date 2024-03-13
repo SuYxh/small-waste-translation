@@ -29,6 +29,15 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "settingWebview",
+          "name": "Your Webview Title",
+          "type": "webview"
+        }
+      ]
+    },
     "configuration": {
       "title": "小废物翻译",
       "properties": {
@@ -97,6 +106,10 @@
       {
         "command": "small-waste-translation.logout",
         "title": "退出小废物"
+      },
+      {
+        "command": "small-waste-translation.setting",
+        "title": "设置小废物"
       }
     ],
     "menus": {
@@ -143,6 +156,7 @@
   "dependencies": {
     "@types/node-fetch": "^2.6.11",
     "crypto": "^1.0.1",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "vscode-uri": "^3.0.8"
   }
 }

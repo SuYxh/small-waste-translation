@@ -46,7 +46,7 @@ export class OpenaiService implements IAIService {
     // handleAccessToken 方法中使用到了 DIContainer 中的服务，所以这里采用异步，等待 DIContainer 初始化完成
     setTimeout(() => {
       this.handleAccessToken();
-    }, 0);
+    }, 1000);
   }
 
   getAccessToken(): Promise<any> {
