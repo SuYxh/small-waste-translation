@@ -25,8 +25,13 @@ export class ExtensionCommunicator {
   handleMessage(event) {
     const message = event.data;
     if (message.id && this.callbacks[message.id]) {
-      this.callbacks[message.id](message);
-      delete this.callbacks[message.id];
+      if (typeof this.callbacks[message.id] === 'function') {
+        Promise.resolve(this.callbacks[message.id](message)).catch(error => {
+          console.error(error)
+        }).finally(() => {
+          delete this.callbacks[message.id];
+        })
+      }
     }
   }
 

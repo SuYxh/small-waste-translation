@@ -1,5 +1,8 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
+import LocalData from './components/LocalData.vue'
+
+
 import { ExtensionCommunicator } from './ExtensionCommunicator';
 // 在你的 Webview 页面脚本中
 const communicator = ExtensionCommunicator.getInstance();
@@ -47,6 +50,9 @@ const handleLogin = () => {
   <HelloWorld msg="小废物设置面板" />
 
   <button @click="handleLogin">handleLogin</button>
+
+
+  <LocalData></LocalData>
 </template>
 
 <style scoped>
