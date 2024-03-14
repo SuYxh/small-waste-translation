@@ -2,7 +2,7 @@
 import HelloWorld from './components/HelloWorld.vue'
 import { ExtensionCommunicator } from './ExtensionCommunicator';
 // 在你的 Webview 页面脚本中
-const communicator = new ExtensionCommunicator();
+const communicator = ExtensionCommunicator.getInstance();
 
 const handleLogin = () => {
   console.log('handleLogin')
@@ -44,7 +44,7 @@ const handleLogin = () => {
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <HelloWorld msg="小废物设置面板" />
 
   <button @click="handleLogin">handleLogin</button>
 </template>

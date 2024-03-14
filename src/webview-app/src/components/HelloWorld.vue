@@ -11,7 +11,7 @@ const count = ref(0)
 <template>
   <h1 class="title">{{ msg }}</h1>
 
-  <div class="title">这是一段文嗯</div>
+  <div class="title">👏欢迎使用小废物！</div>
 
   <div class="card">
     <button type="button" @click="count++">count is {{ count }}</button>
