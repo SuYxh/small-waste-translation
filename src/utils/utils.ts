@@ -98,7 +98,7 @@ export function convertTranslationResults(texts: string[], originText: string, s
 }
 
 /**
- * @description: 获取操作标识
+ * @description: 获取操作标识是：插入到选中文本下方还是替换选中文本， 主要看翻译的文本内容长度
  * @param {ITranslateTextResult} currentSelect 当前选中的翻译
  * @param {string} selectText 去掉平台标识后的选中文本
  * @return {*}

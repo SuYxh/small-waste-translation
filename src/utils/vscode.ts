@@ -16,7 +16,7 @@ export function showInputBox(prompt: string, placeHolder: string) {
  * @returns 用户选择的翻译结果
  */
 export async function showTranslationChoices(translations: string[], placeHolder?: string): Promise<string | undefined> {
-  placeHolder = placeHolder || 'Choose your preferred translation';
+  placeHolder = placeHolder || '选择您喜欢的翻译';
   const selected = await vscode.window.showQuickPick(translations, {
     placeHolder,
   });

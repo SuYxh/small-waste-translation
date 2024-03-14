@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import { WebviewCommunicator } from './WebviewCommunicator';
-import { DIContainer, LocalStorageService } from '@/service';
-import { LOCAL_STORAGE_SERVICE } from '@/const';
+import { DIContainer, LocalStorageService, UsageLimitService } from '@/service';
+import { LOCAL_STORAGE_SERVICE, USERNAME, PASSWORD, OPENAI_ACCESS_TOKEN, USAGE_LIMIT_SERVICE } from '@/const';
 import { showErrorMessage, showInformationMessage } from '@/utils';
+import { openaiLogin } from '@/ai/openai';
 
 export class WebviewMessageHandler {
 
@@ -48,6 +49,14 @@ export class WebviewMessageHandler {
         await this.setStorage(message);
         break;
 
+      case 'getUserInfo':
+        await this.getUserInfo(message);
+        break;
+
+      case 'getRemainingUsageText':
+        await this.getRemainingUsageText(message);
+        break;
+
       default:
         await this.handleDefault(message);
         break;
@@ -73,14 +82,42 @@ export class WebviewMessageHandler {
     showErrorMessage('暂不支持该操作');
   }
 
+  private async getUserInfo(message: any) {
+    console.log('getUserInfo request:', message);
+    const username = this.localStorageService.get(USERNAME)
+    const pwd = this.localStorageService.get(PASSWORD)
+    const accessToken = this.localStorageService.get(OPENAI_ACCESS_TOKEN)
+
+    // 发送响应回 Webview
+    const result = { code: 0, data: { username, pwd, accessToken } };
+    this.communicator.sendMessage({ id: message.id, ...result });
+  }
+
+  private async getRemainingUsageText(message: any) {
+    console.log('getRemainingUsageText request:', message);
+    const usageLimitService = DIContainer.instance.get<UsageLimitService>(USAGE_LIMIT_SERVICE);
+    const text = usageLimitService.getRemainingUsageText()
+    // 发送响应回 Webview
+    const result = { code: 0, data: text };
+    this.communicator.sendMessage({ id: message.id, ...result });
+  }
+
+
   private async handleLogin(message: any) {
     console.log('Login request:', message.params);
 
-    // 假设处理登录逻辑...
-    const result = { code: 0, data: { token: "some-token" } }; // 假设的处理结果
+    const result = await openaiLogin(message.params?.mobile, message.params?.password);
+    if (result.data) {
+      // 成功
+      const data = { code: 0, data: { token: result.data } };
 
-    // 发送响应回 Webview
-    this.communicator.sendMessage({ id: message.id, ...result });
+      // 发送响应回 Webview
+      this.communicator.sendMessage({ id: message.id, ...data });
+      showInformationMessage('登录成功')
+    } else {
+      // 失败
+      showErrorMessage(result.message)
+    }
   }
 
 

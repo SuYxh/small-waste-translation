@@ -18,6 +18,5 @@ export async function init(context: vscode.ExtensionContext) {
   usageLimitService.checkAndInitializeDailyLimits();
   usageLimitService.scheduleDailyReset();
 
-
-  localStorageService.set(IS_SYSTEM_USER, true);
+  // localStorageService.set(IS_SYSTEM_USER, true);
 }

@@ -50,17 +50,19 @@ export async function translateText(targetLang: string, sourceLang: string) {
 
         const translationsPromises = translationServices.map(service =>
           service.translateText(text, targetLang, sourceLang).catch(error => {
-            console.error(error);
+            console.error('翻译服务出错', error);
             return [];
           })
         );
 
+        // 并发执行翻译服务
         const translationsResults = await Promise.all(translationsPromises);
 
+        // 选择翻译有结果的数据
         const allTranslations = translationsResults.flat().filter(translation => translation.translation.length > 0);
 
         if (allTranslations.length === 0) {
-          showErrorMessage('All translation services failed.')
+          showErrorMessage('翻译服务不可用!')
           return []
         }
 
@@ -68,12 +70,14 @@ export async function translateText(targetLang: string, sourceLang: string) {
       }
     )
 
-    // 提取翻译结果
+    // 转换翻译结果为 vscode.window.showQuickPick 需要的格式
     const selectAllTranslations = allTranslations.map(item => item.translation);
 
     // 获取选择的翻译结果
     let selectedTranslation = await showTranslationChoices(selectAllTranslations);
     if (!selectedTranslation) return;
+
+    // TODO： 这里可以上报用户选择的平台，看看用户最喜欢那一个
 
     // 当前选中的翻译服务
     currentSelect = allTranslations.find(item => item.translation === selectedTranslation) as ITranslateTextResult
@@ -94,6 +98,6 @@ export async function translateText(targetLang: string, sourceLang: string) {
       await replaceSelectedText(selectedTranslation);
     }
   } catch (error) {
-    showErrorMessage(`Translation failed: ${error}`);
+    showErrorMessage(`翻译失败: ${error}`);
   }
 }

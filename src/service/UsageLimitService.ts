@@ -1,6 +1,6 @@
 import { LocalStorageService } from './LocalStorageService';
 import { UserService } from './UserService';
-import { TRANSLATE, GENERATE_FUNCTION_NAME } from '@/const';
+import { TRANSLATE, GENERATE_FUNCTION_NAME, DEEPL_KEY, BAIDU_APP_ID, TENCENT_SECRET_ID } from '@/const';
 import { getAPIDefaultCallTimes } from '@/utils';
 
 export class UsageLimitService {
@@ -17,10 +17,9 @@ export class UsageLimitService {
             this.localStorageService.set('lastInitialized', today);
         } else {
             console.log('今天已经进行过初始化');
-            
         }
     }
-    
+
 
     // 初始化调用次数
     public initializeDailyLimits(): void {
@@ -54,26 +53,70 @@ export class UsageLimitService {
         }, delay);
     }
 
-
     private getDailyKey(featureName: string): string {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
         return `${featureName}:${today}`;
     }
 
-    public canUseFeature(featureName: string): boolean {
-        if (this.userService.isVipUser()) {
-            return true; // VIP用户无限制
-        }
-
+    public hasTranslateConfig(): boolean {
+        // 判断一下本地是否有配置的翻译 API, 这里只判断了 id ，如果有id key 肯定也有
+        const deeplKey = this.localStorageService.get<string>(DEEPL_KEY);
+        const baiduAppId = this.localStorageService.get<string>(BAIDU_APP_ID);
+        const tencentSecertId = this.localStorageService.get<string>(TENCENT_SECRET_ID);
+        return !!deeplKey || !!baiduAppId || !!tencentSecertId;
+    }
+    // 判断是否可以调用 
+    public canIuse(featureName: string): boolean {
+        // 本地没有配置，则检查是否可以调用
         const dailyLimit = getAPIDefaultCallTimes(featureName)
+
         if (dailyLimit === -1) {
             return true; // 该功能没有无限制
         }
 
+        // 看下缓存中今天使用了多少次
         const key = this.getDailyKey(featureName);
         const currentCount = this.localStorageService.get<number>(key) ?? 0;
 
+        // 没有达到上限，则可以调用
         return currentCount < dailyLimit;
+    }
+
+    public canUseTranslate(featureName: string): boolean {
+        // 本地有配置，则可以调用
+        if (this.hasTranslateConfig()) {
+            return true;
+        }
+
+        return this.canIuse(featureName);
+    }
+
+
+    public canUseGenerateFunctionName(featureName: string): boolean {
+        if (this.userService.isVipUser()) {
+            return true;
+        }
+
+        return this.canIuse(featureName);
+    }
+
+
+    public canUseFeature(featureName: string): boolean {
+        let flag = null
+        switch (featureName) {
+            // 翻译
+            case TRANSLATE:
+                flag = this.canUseTranslate(featureName);
+                break;
+            case GENERATE_FUNCTION_NAME:
+                flag = this.canUseGenerateFunctionName(featureName);
+                break;
+
+            default:
+                flag = true;
+                break;
+        }
+        return flag;
     }
 
     public recordFeatureUse(featureName: string): void {
@@ -84,14 +127,16 @@ export class UsageLimitService {
 
 
     public getRemainingUsageText(): string {
-        if (this.userService.isVipUser()) {
-            return "作为VIP用户，您可以无限制使用所有功能。";
-        }
+        const prefix = '您今天还可以使用:'
 
-        const remainingTranslate = this.getRemainingUsage(TRANSLATE, getAPIDefaultCallTimes(TRANSLATE));
         const remainingGenerateFunctionName = this.getRemainingUsage(GENERATE_FUNCTION_NAME, getAPIDefaultCallTimes(GENERATE_FUNCTION_NAME));
+        const aiText = this.userService.isVipUser() ? '生成函数名称: 无限次' : `生成函数名称: ${remainingGenerateFunctionName}`
 
-        return `您今天还可以使用翻译功能${remainingTranslate}次，生成函数名功能${remainingGenerateFunctionName}次。`;
+        
+        const remainingTranslate = this.getRemainingUsage(TRANSLATE, getAPIDefaultCallTimes(TRANSLATE));
+        const translateText = this.hasTranslateConfig() ? '翻译: 无限次' : `翻译: ${remainingTranslate}`
+
+        return prefix + aiText + ';' + translateText;
     }
 
     private getRemainingUsage(featureName: string, dailyLimit: number): number {

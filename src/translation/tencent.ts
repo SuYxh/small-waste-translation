@@ -2,6 +2,8 @@ import fetch from 'node-fetch';
 import { createHmac, createHash } from 'crypto';
 import { showErrorMessage, genErrorMsg, convertTranslationResults, addPlatformFlag } from '@/utils';
 import type { ITranslationService, ITranslateTextResult } from '@/type';
+import { DIContainer, LocalStorageService } from '@/service';
+import { LOCAL_STORAGE_SERVICE, TENCENT_SECRET_ID, TENCENT_SECRET_KEY } from '@/const';
 
 // console.log('TENCENT_SECRET_ID', process.env.TENCENT_SECRET_ID)
 // console.log('TENCENT_SECRET_KEY', process.env.TENCENT_SECRET_KEY)
@@ -25,10 +27,17 @@ export class TencentService implements ITranslationService {
     sourceLang = sourceLang.toLocaleLowerCase()
     targetLang = targetLang.toLocaleLowerCase()
 
+    const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+    const localSecretId = localStorageService.get(TENCENT_SECRET_ID);
+    const localSecretKey = localStorageService.get(TENCENT_SECRET_KEY);
+
+    const tencentSecertId = localSecretId || this.secretId;
+    const tencentSecertKey = localSecretKey || this.secretKey;
+
     const timestamp = Math.floor(Date.now() / 1000);
     const date = new Date(timestamp * 1000).toISOString().substr(0, 10);
     const service = 'tmt';
-    
+
     const host = this.endpoint;
     const algorithm = 'TC3-HMAC-SHA256';
     const httpRequestMethod = 'POST';
@@ -51,13 +60,13 @@ export class TencentService implements ITranslationService {
     const stringToSign = `${algorithm}\n${timestamp}\n${credentialScope}\n${hashedCanonicalRequest}`;
 
     // ************* 步骤 3：计算签名 *************
-    const secretDate = createHmac('sha256', `TC3${this.secretKey}`).update(date).digest();
+    const secretDate = createHmac('sha256', `TC3${tencentSecertKey}`).update(date).digest();
     const secretService = createHmac('sha256', secretDate).update(service).digest();
     const secretSigning = createHmac('sha256', secretService).update('tc3_request').digest();
     const signature = createHmac('sha256', secretSigning).update(stringToSign).digest('hex');
 
     // ************* 步骤 4：拼接 Authorization *************
-    const authorization = `${algorithm} Credential=${this.secretId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+    const authorization = `${algorithm} Credential=${tencentSecertId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
     try {
       const response = await fetch(`https://${this.endpoint}`, {
@@ -96,5 +105,13 @@ export class TencentService implements ITranslationService {
       console.error(errorMsg);
       return [];
     }
+  }
+
+  async verifyApiKey(): Promise<boolean> {
+    const list: any = await this.translateText('test', 'ZH', 'EN')
+    if (list?.length > 0) {
+      return true
+    }
+    return false
   }
 }

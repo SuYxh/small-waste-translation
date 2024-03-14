@@ -7,8 +7,8 @@ export class UserService {
   constructor(private localStorageService: LocalStorageService) { }
 
   public isVipUser(): boolean {
-    // 判断是否是系统用户，如果是就不是 vip 用户
-    const isSystemUser = this.localStorageService.get<string>(IS_SYSTEM_USER);
+    // 判断是否是系统用户，如果是就不是 vip 用户, 默认是系统用户
+    const isSystemUser = this.localStorageService.get<string>(IS_SYSTEM_USER) ?? true;
     return !isSystemUser
   }
 

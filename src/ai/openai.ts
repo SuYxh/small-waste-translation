@@ -6,7 +6,6 @@ import { IAIService } from '@/type';
 
 export function openaiLogin(mobile: string, password: string) {
   return new Promise<any>((resolve, reject) => {
-
     // 判断当前用户是否为系统用户
     setSystemUser(mobile === process.env.USERNAME)
 
@@ -29,7 +28,11 @@ export function openaiLogin(mobile: string, password: string) {
         }
         return response.json();
       })
-      .then((data: any) => {
+      .then(async (data: any) => {
+        const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+        await localStorageService.set(OPENAI_ACCESS_TOKEN, data.data)
+        await localStorageService.set(USERNAME, mobile)
+        await localStorageService.set(PASSWORD, password)
         resolve(data)
       })
       .catch(error => {
@@ -40,7 +43,7 @@ export function openaiLogin(mobile: string, password: string) {
 
 export class OpenaiService implements IAIService {
   public validity: number = 24 * 60 * 60 * 1000;
-  public platform: string = 'openai';
+  public platform: string = OPENAI_ACCESS_TOKEN;
   public accessToken: string = '';
   constructor() {
     // handleAccessToken 方法中使用到了 DIContainer 中的服务，所以这里采用异步，等待 DIContainer 初始化完成
@@ -80,11 +83,10 @@ export class OpenaiService implements IAIService {
         const accessData = await this.getAccessToken()
         if (accessData.data) {
            // 24 * 60 * 60 * 1000 表示 24小时， 此时设置过期时间为20天
-          localStorageService.set(this.platform, accessData.data, this.validity)
           this.accessToken = accessData.data;
         } else {
           // 说明 token 获取失败
-          console.log('获取 openai token 失败', accessData)
+          console.log('openai-接口出错', accessData)
           showErrorMessage(accessData.message ?? '获取 openai token 失败')
           this.cleanAccessToken()
         }       

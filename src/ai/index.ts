@@ -12,7 +12,7 @@ export async function askToAI() {
   // 获取选中的文本
   const text = getSelectedText();
   if (!text) {
-    showInformationMessage('No text selected')
+    showInformationMessage('当前没有选中文案')
     return;
   }
 
@@ -29,19 +29,21 @@ export async function askToAI() {
 
     // 将 ArrayBuffer 转换为 Buffer
     const buffer = Buffer.from(arrayBuffer);
-
+    // 解析接口返回的数据
     const result: any = extractPenultimateJson(buffer.toString())
 
     if (result.text) {
+      // 解析GPT返回的 markdown 数据
       const formatData: any = extractDataFromString(result.text)
 
+      // 展示翻译结果
       let selected = await showTranslationChoices(formatData.data ?? []);
       if (!selected) return;
+      // 替换选中的文本
       await replaceSelectedText(selected);
     } else {
       console.log('askToAI-解析-error', result);
       showErrorMessage(result);
-
       // 清理 AccessToken
       aiInstacne.cleanAccessToken();
     }

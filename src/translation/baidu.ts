@@ -2,6 +2,8 @@ import fetch from 'node-fetch'; // 确保已经安装了node-fetch
 import { createHash } from 'crypto';
 import { showErrorMessage, genErrorMsg, addPlatformFlag, convertTranslationResults } from '@/utils';
 import type { ITranslationService, ITranslateTextResult } from '@/type';
+import { DIContainer, LocalStorageService } from '@/service';
+import { BAIDU_APP_ID, BAIDU_APP_KEY, LOCAL_STORAGE_SERVICE } from '@/const';
 
 // console.log('BAIDU_APP_ID', process.env.BAIDU_APP_ID)
 // console.log('BAIDU_APP_KEY', process.env.BAIDU_APP_KEY)
@@ -24,8 +26,8 @@ export class BaiduService implements ITranslationService {
         return this.platform;
     }
 
-    sign(text: string, salt: string) {
-        const str1 = this.appid + text + salt + this.key;
+    sign(text: string, salt: string, key: string) {
+        const str1 = this.appid + text + salt + key;
         const sign = MD5(str1);
         return sign
     }
@@ -41,13 +43,19 @@ export class BaiduService implements ITranslationService {
         const url = 'http://api.fanyi.baidu.com/api/trans/vip/translate';
         const salt = new Date().getTime().toString();
 
+        const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+        const userAppId = localStorageService.get(BAIDU_APP_ID) as string ?? '';
+        const userAppKEy = localStorageService.get(BAIDU_APP_KEY) as string ?? '';
+        const appid = userAppId || this.appid;
+        const key = userAppKEy || this.key;
+
         const params = new URLSearchParams({
             q: text,
-            appid: this.appid,
-            salt: salt,
+            appid,
+            salt,
             from: sourceLang.toLocaleLowerCase(),
             to: targetLang.toLocaleLowerCase(),
-            sign: this.sign(text, salt),
+            sign: this.sign(text, salt, key),
         });
 
         try {
@@ -71,5 +79,13 @@ export class BaiduService implements ITranslationService {
             showErrorMessage(errorMsg)
             return [];
         }
+    }
+
+    async verifyApiKey(): Promise<boolean> {
+        const list: any = await this.translateText('test', 'ZH', 'EN')
+        if (list?.length > 0) {
+            return true
+        } 
+        return false
     }
 }

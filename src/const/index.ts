@@ -8,14 +8,12 @@ export const USER_SERVICE = 'userService'
 
 export const USAGE_LIMIT_SERVICE = 'UsageLimitService'
 
-
-
 // 调用openai接口的凭证
 export const OPENAI_ACCESS_TOKEN = 'openaiAccessToken'
 
 
 // 翻译功能名称以及默认调用次数
-export const TRANSLATE = 'translateToChinese'
+export const TRANSLATE = 'translate'
 export const TRANSLATE_CALL_TIMES = 100
 
 
@@ -24,7 +22,6 @@ export const GENERATE_FUNCTION_NAME = 'generateFunctionName'
 export const GENERATE_FUNCTION_NAME_CALL_TIMES = 100
 
 
-// 
 export const USERNAME = 'username'
 export const PASSWORD = 'password'
 
@@ -35,3 +32,14 @@ export const USER_VIDATE = 24 * 60 * 60 * 1000 * 20
 
 // 是否为系统用户
 export const IS_SYSTEM_USER = 'isSystemUser'
+
+
+// 
+export const DEEPL_KEY = 'deeplKey'
+
+export const BAIDU_APP_ID = 'baiduAppId'
+export const BAIDU_APP_KEY = 'baiduAppKey'
+
+
+export const TENCENT_SECRET_ID = 'tencentSecertId'
+export const TENCENT_SECRET_KEY = 'tencentSecertKey'

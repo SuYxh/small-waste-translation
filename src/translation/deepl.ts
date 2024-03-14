@@ -1,6 +1,8 @@
 import fetch from 'node-fetch'; // 确保已经安装了node-fetch
 import { showErrorMessage, genErrorMsg, addPlatformFlag, convertTranslationResults} from '@/utils';
 import type { ITranslationService, ITranslateTextResult } from '@/type';
+import { DIContainer, LocalStorageService } from '@/service';
+import { LOCAL_STORAGE_SERVICE, DEEPL_KEY } from '@/const';
 
 // console.log('DEEPL_API_KEY', process.env.DEEPL_API_KEY)
 
@@ -22,7 +24,11 @@ export class DeepLService implements ITranslationService {
     }
 
     genUrl(text: string, sourceLang: string, targetLang: string): string {
-        return `${this.baseUrl}${this.translateAPI}?auth_key=${this.apiKey}&text=${encodeURIComponent(text)}&source_lang=${sourceLang}&target_lang=${targetLang}`;
+        const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+        const userApiKey = localStorageService.get(DEEPL_KEY);
+        // 优先使用用户设置
+        const apiKey = userApiKey ?? this.apiKey;
+        return `${this.baseUrl}${this.translateAPI}?auth_key=${apiKey}&text=${encodeURIComponent(text)}&source_lang=${sourceLang}&target_lang=${targetLang}`;
     }
 
     /**
@@ -56,5 +62,13 @@ export class DeepLService implements ITranslationService {
             showErrorMessage(errorMsg)
             return [];
         }
+    }
+
+    async verifyApiKey(): Promise<boolean> {
+        const list: any = await this.translateText('test', 'ZH', 'EN')
+        if (list?.length > 0) {
+            return true
+        } 
+        return false
     }
 }
