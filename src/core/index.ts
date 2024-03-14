@@ -1,6 +1,6 @@
 import {  showInformationMessage, useFeatureTranslate } from '@/utils';
 import { UsageLimitService, DIContainer, UserService, LocalStorageService } from '@/service';
-import { TRANSLATE, GENERATE_FUNCTION_NAME, USAGE_LIMIT_SERVICE, LOCAL_STORAGE_SERVICE, IS_SYSTEM_USER } from '@/const';
+import { TRANSLATE, GENERATE_FUNCTION_NAME, USAGE_LIMIT_SERVICE, LOCAL_STORAGE_SERVICE, IS_SYSTEM_USER, WEBVIEW_MANAGER } from '@/const';
 import { translateText } from '@/translation';
 import { askToAI } from '@/ai';
 import { WebviewManager } from '@/webview';
@@ -74,5 +74,6 @@ export const loginout = () => {
 export const setting = (context: vscode.ExtensionContext) => {
   console.log('setting')
   const webviewManager = new WebviewManager(context)
+  DIContainer.instance.register(WEBVIEW_MANAGER, webviewManager);
   webviewManager.openWebview()
 }

@@ -43,3 +43,5 @@ export const BAIDU_APP_KEY = 'baiduAppKey'
 
 export const TENCENT_SECRET_ID = 'tencentSecertId'
 export const TENCENT_SECRET_KEY = 'tencentSecertKey'
+
+export const WEBVIEW_MANAGER = 'WebviewManager'

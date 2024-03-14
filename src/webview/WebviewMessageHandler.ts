@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import { WebviewCommunicator } from './WebviewCommunicator';
 import { DIContainer, LocalStorageService, UsageLimitService } from '@/service';
-import { LOCAL_STORAGE_SERVICE, USERNAME, PASSWORD, OPENAI_ACCESS_TOKEN, USAGE_LIMIT_SERVICE } from '@/const';
+import { LOCAL_STORAGE_SERVICE, USERNAME, PASSWORD, OPENAI_ACCESS_TOKEN, USAGE_LIMIT_SERVICE, WEBVIEW_MANAGER } from '@/const';
 import { showErrorMessage, showInformationMessage } from '@/utils';
 import { openaiLogin } from '@/ai/openai';
+import { WebviewManager } from './index';
 
 export class WebviewMessageHandler {
 
@@ -80,6 +81,13 @@ export class WebviewMessageHandler {
   private async handleDefault(message: any) {
     console.log('handleDefault request:', message.params);
     showErrorMessage('暂不支持该操作');
+  }
+
+  private async refresh(message: any) {
+    console.log('refresh request:', message.params);
+    const webviewManager = DIContainer.instance.get<WebviewManager>(WEBVIEW_MANAGER);
+    webviewManager.refresh()
+    showErrorMessage('刷新成功');
   }
 
   private async getUserInfo(message: any) {

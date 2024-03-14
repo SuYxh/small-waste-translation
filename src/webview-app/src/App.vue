@@ -1,71 +1,77 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import LocalData from './components/LocalData.vue'
-
-
-import { ExtensionCommunicator } from './ExtensionCommunicator';
-// 在你的 Webview 页面脚本中
-const communicator = ExtensionCommunicator.getInstance();
-
-const handleLogin = () => {
-  console.log('handleLogin')
-  communicator.sendMessage({ command: 'login', params: { username: 'user', password: 'pass' } }, (result) => {
-  if (result.code == 0) {
-    console.log('result', result);
-  } else {
-    console.log('失败', result);
-  }
-});
-}
-
-// 发送登录请求
-
-// 重写 handleMessage 方法来处理特定的响应
-// communicator.handleMessage = function(event) {
-//   console.log('handleMessage-->event', event)
-//   const message = event.data;
-//   switch (message.command) {
-//     case 'loginResponse':
-//       if (message.success) {
-//         console.log('登录成功！');
-//       } else {
-//         console.log('登录失败。');
-//       }
-//       break;
-//     // 处理其他消息类型
-//   }
-// };
-
-</script>
-
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+
+  <div class="app-container">
+    <header>
+      <LogoComponent />
+    </header>
+    <main>
+      <div class="main-container">
+        <Tabs :tabs="tabs">
+          <template #intro>
+            <div>这是一个使用Vue 3和Vite构建的应用，旨在演示如何通过Tab组件优雅地组织内容。</div>
+          </template>
+          <template #user>
+            <UserModule />
+          </template>
+          <template #api>
+            <ApiModule />
+          </template>
+          <template #localstorage>
+            <LocalStorageModule />
+          </template>
+        </Tabs>
+      </div>
+    </main>
   </div>
-  <HelloWorld msg="小废物设置面板" />
-
-  <button @click="handleLogin">handleLogin</button>
 
 
-  <LocalData></LocalData>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script>
+import Tabs from './components/Tabs.vue';
+import LogoComponent from './components/Logo.vue';
+import UserModule from './components/UserProfile.vue';
+import ApiModule from './components/ApiModule.vue';
+import LocalStorageModule from './components/Local.vue';
+
+export default {
+  name: 'App',
+  components: {
+    Tabs,
+    LogoComponent,
+    UserModule,
+    ApiModule,
+    LocalStorageModule,
+  },
+  data() {
+    return {
+      tabs: [
+        { title: '简介', content: 'intro' },
+        { title: '用户', content: 'user' },
+        { title: 'API', content: 'api' },
+        { title: '本地存储', content: 'localstorage' },
+      ],
+    };
+  },
+};
+</script>
+
+<style>
+.app-container {
+  /* max-width: 800px; */
+  /* margin: 0 auto; */
+  padding: 20px;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+header {
+  margin-bottom: 20px;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+main {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 </style>

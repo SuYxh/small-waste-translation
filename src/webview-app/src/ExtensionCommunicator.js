@@ -6,11 +6,16 @@ export class ExtensionCommunicator {
     if (ExtensionCommunicator.instance) {
       throw new Error("Error: Instantiation failed: Use ExtensionCommunicator.getInstance() instead of new.");
     }
-    this.vscode = acquireVsCodeApi();
-    this.callbacks = {};
-    this.messageId = 0;
 
-    window.addEventListener('message', event => this.handleMessage(event));
+    try {
+      this.vscode = acquireVsCodeApi();
+      this.callbacks = {};
+      this.messageId = 0;
+
+      window.addEventListener('message', event => this.handleMessage(event));
+    } catch (error) {
+      console.log('当前不在 vscode webview 环境下');
+    }
   }
 
   static getInstance() {

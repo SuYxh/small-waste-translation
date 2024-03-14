@@ -6,8 +6,11 @@ import { WebviewMessageHandler } from './WebviewMessageHandler';
 export class WebviewManager {
   private context: vscode.ExtensionContext;
 
+  private panel: vscode.WebviewPanel;
+
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
+    this.panel = {} as vscode.WebviewPanel;
   }
 
   public openWebview() {
@@ -23,6 +26,11 @@ export class WebviewManager {
 
     new WebviewMessageHandler(panel, this.context); // 这里初始化消息处理器
     this.loadWebviewContent(panel);
+    this.panel = panel
+  }
+
+  public refresh() {
+    this.loadWebviewContent(this.panel)
   }
 
   private loadWebviewContent(panel: vscode.WebviewPanel) {
