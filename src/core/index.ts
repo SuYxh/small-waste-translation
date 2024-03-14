@@ -3,7 +3,7 @@ import { UsageLimitService, DIContainer, UserService, LocalStorageService } from
 import { TRANSLATE, GENERATE_FUNCTION_NAME, USAGE_LIMIT_SERVICE, LOCAL_STORAGE_SERVICE, IS_SYSTEM_USER } from '@/const';
 import { translateText } from '@/translation';
 import { askToAI } from '@/ai';
-import { openWebview } from '@/webview';
+import { WebviewManager } from '@/webview';
 import * as vscode from 'vscode';
 
 
@@ -73,5 +73,6 @@ export const loginout = () => {
 
 export const setting = (context: vscode.ExtensionContext) => {
   console.log('setting')
-  openWebview(context)
+  const webviewManager = new WebviewManager(context)
+  webviewManager.openWebview()
 }

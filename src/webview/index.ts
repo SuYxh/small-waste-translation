@@ -1,42 +1,45 @@
-
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { WebviewMessageHandler } from './WebviewMessageHandler';
 
-export function openWebview(context: vscode.ExtensionContext) {
-  const panel = vscode.window.createWebviewPanel(
-    'settingWebview', // Identifies the type of the webview. Used internally
-    '小废物设置面板', // Title of the panel displayed to the user
-    vscode.ViewColumn.One, // Editor column to show the new webview panel in.
-    {
-      enableScripts: true, //  开启 js
-      retainContextWhenHidden: true, // webview被隐藏时保持状态，避免被重置
-    } 
-  );
+export class WebviewManager {
+  private context: vscode.ExtensionContext;
 
-  // 获取 webview 目录下dist文件夹的路径
-  // @ts-ignore
-  const distPathOnDisk = vscode.Uri.joinPath(context.extensionUri, '/src/webview-app/dist');
-  console.log('distPathOnDisk', distPathOnDisk);
+  constructor(context: vscode.ExtensionContext) {
+    this.context = context;
+  }
 
-  // 获取dist文件夹的URI
-  // @ts-ignore
-  const distUri = panel.webview.asWebviewUri(distPathOnDisk);
-  console.log('distUri', distUri);
+  public openWebview() {
+    const panel = vscode.window.createWebviewPanel(
+      'settingWebview',
+      '小废物设置面板',
+      vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+      }
+    );
 
-  // 读取dist文件夹中index.html的内容
-  const indexHtmlPath = path.join(distPathOnDisk.fsPath, 'index.html');
-  const indexHtmlContent = fs.readFileSync(indexHtmlPath, 'utf-8');
+    new WebviewMessageHandler(panel, this.context); // 这里初始化消息处理器
+    this.loadWebviewContent(panel);
+  }
 
-  // 将资源路径替换为webview的
-  let updatedHtmlContent = indexHtmlContent
-    .replace(/src="([^"]*)"/g, (match: any, p1: any) => {
-      return `src="${distUri}/${p1}"`;
-    })
-    .replace(/href="([^"]*)"/g, (match: any, p1: any) => {
-      return `href="${distUri}/${p1}"`;
-    })
+  private loadWebviewContent(panel: vscode.WebviewPanel) {
+    const distPath = path.join(this.context.extensionPath, 'src', 'webview-app', 'dist');
+    const distUri = panel.webview.asWebviewUri(vscode.Uri.file(distPath));
 
-  // 设置 html 内容
-  panel.webview.html = updatedHtmlContent;
+    const indexHtmlPath = path.join(distPath, 'index.html');
+    let indexHtmlContent = fs.readFileSync(indexHtmlPath, 'utf-8');
+
+    // 使用 distUri 替换资源文件路径
+    indexHtmlContent = indexHtmlContent.replace(/(src|href)="([^"]*)"/g, (match, p1, p2) => {
+      // 注意这里使用了 distUri 和相对路径 p2 来构建新的 URI
+      let relativePath = p2.startsWith('/') ? p2.substring(1) : p2; // 移除路径开头的斜杠（如果存在）
+      return `${p1}="${distUri}/${relativePath}"`;
+    });
+
+    panel.webview.html = indexHtmlContent;
+  }
+
 }
