@@ -36,11 +36,22 @@ export class WebviewMessageHandler {
     this.context.subscriptions.push(disposable);
   }
 
-  private async handleLogin(message: { command: string;[key: string]: any }) {
-    console.log('Login request:', message);
-    // 处理登录逻辑...
-    this.communicator.sendMessage({ command: 'loginResponse', success: true });
+  // private async handleLogin(message: { command: string;[key: string]: any }) {
+  //   console.log('Login request:', message);
+  //   // 处理登录逻辑...
+  //   this.communicator.sendMessage({ command: 'loginResponse', success: true });
+  // }
+
+  private async handleLogin(message: any) {
+    console.log('Login request:', message.params);
+    
+    // 假设处理登录逻辑...
+    const result = { code: 0, data: { token: "some-token" } }; // 假设的处理结果
+    
+    // 发送响应回 Webview
+    this.communicator.sendMessage({ id: message.id, ...result });
   }
+  
 
   // 可以添加更多的处理函数，如 handleLogout、handleFetchCache 等
 }

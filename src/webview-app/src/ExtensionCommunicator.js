@@ -1,17 +1,24 @@
 export class ExtensionCommunicator {
   constructor() {
-    // 将 VSCode API 实例保存为类的属性
     this.vscode = acquireVsCodeApi();
+    this.callbacks = {};
+    this.messageId = 0;
+
     window.addEventListener('message', event => this.handleMessage(event));
   }
 
-  sendMessage(message) {
-    // 使用保存的 VSCode API 实例来发送消息
-    this.vscode.postMessage(message);
+  sendMessage(message, callback) {
+    const id = ++this.messageId;
+    this.callbacks[id] = callback;
+    this.vscode.postMessage({ ...message, id });
   }
 
   handleMessage(event) {
-    const message = event.data; // 处理消息
-    console.log(message);
+    const message = event.data;
+    // 检查消息是否为响应且是否有相应的回调函数
+    if (message.id && this.callbacks[message.id]) {
+      this.callbacks[message.id](message);
+      delete this.callbacks[message.id]; // 移除已调用的回调函数
+    }
   }
 }

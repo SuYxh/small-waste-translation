@@ -4,29 +4,34 @@ import { ExtensionCommunicator } from './ExtensionCommunicator';
 // 在你的 Webview 页面脚本中
 const communicator = new ExtensionCommunicator();
 
-
 const handleLogin = () => {
   console.log('handleLogin')
-  communicator.sendMessage({ command: 'login', username: 'user', password: 'pass' });
+  communicator.sendMessage({ command: 'login', params: { username: 'user', password: 'pass' } }, (result) => {
+  if (result.code == 0) {
+    console.log('result', result);
+  } else {
+    console.log('失败', result);
+  }
+});
 }
 
 // 发送登录请求
 
 // 重写 handleMessage 方法来处理特定的响应
-communicator.handleMessage = function(event) {
-  console.log('handleMessage-->event', event)
-  const message = event.data;
-  switch (message.command) {
-    case 'loginResponse':
-      if (message.success) {
-        console.log('登录成功！');
-      } else {
-        console.log('登录失败。');
-      }
-      break;
-    // 处理其他消息类型
-  }
-};
+// communicator.handleMessage = function(event) {
+//   console.log('handleMessage-->event', event)
+//   const message = event.data;
+//   switch (message.command) {
+//     case 'loginResponse':
+//       if (message.success) {
+//         console.log('登录成功！');
+//       } else {
+//         console.log('登录失败。');
+//       }
+//       break;
+//     // 处理其他消息类型
+//   }
+// };
 
 </script>
 
