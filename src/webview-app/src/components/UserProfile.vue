@@ -6,6 +6,7 @@
       <button @click="login" class="login-button">登录</button>
       <p v-if="remainingUsageText">{{ remainingUsageText }}</p>
       <p v-else>登录后可以无限使用</p>
+      <p>注册地址: <a href="https://ask.vuejs.news/" target="_blank" rel="noopener noreferrer">https://ask.vuejs.news/</a></p>
     </div>
     <div v-else class="welcome-message">
       <p>欢迎回来，{{ userPhoneNumber }}</p>

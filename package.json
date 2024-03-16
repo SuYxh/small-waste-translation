@@ -2,7 +2,7 @@
   "name": "small-waste-translation",
   "displayName": "小废物翻译",
   "description": "翻译、腾讯翻译、百度翻译、免费翻译、deepl翻译、火山翻译",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "y170088888",
   "repository": {
     "type": "git",
@@ -39,44 +39,7 @@
       ]
     },
     "configuration": {
-      "title": "小废物翻译",
-      "properties": {
-        "small-waste-translation.username": {
-          "type": "string",
-          "default": "",
-          "description": "请输入用户名"
-        },
-        "small-waste-translation.password": {
-          "type": "string",
-          "default": "",
-          "description": "请输入密码"
-        },
-        "small-waste-translation.deeplKey": {
-          "type": "string",
-          "default": "",
-          "description": "请输入deeplKey, 获取方式请看README.md"
-        },
-        "small-waste-translation.baiduAppId": {
-          "type": "string",
-          "default": "",
-          "description": "请输入baiduAppId, 获取方式请看README.md"
-        },
-        "small-waste-translation.baiduAppKey": {
-          "type": "string",
-          "default": "",
-          "description": "请输入baiduAppKey, 获取方式请看README.md"
-        },
-        "small-waste-translation.tencentSecertId": {
-          "type": "string",
-          "default": "",
-          "description": "请输入tencentSecertId, 获取方式请看README.md"
-        },
-        "small-waste-translation.tencentSecertKey": {
-          "type": "string",
-          "default": "",
-          "description": "请输入tencentSecertKey, 获取方式请看README.md"
-        }
-      }
+      "title": "小废物翻译"
     },
     "commands": [
       {
@@ -92,20 +55,8 @@
         "title": "📝 生成函数名"
       },
       {
-        "command": "small-waste-translation.resetCallTime",
-        "title": "resetCallTime"
-      },
-      {
-        "command": "small-waste-translation.getRestCallTime",
-        "title": "getRestCallTime"
-      },
-      {
         "command": "small-waste-translation.login",
         "title": "登录小废物"
-      },
-      {
-        "command": "small-waste-translation.logout",
-        "title": "退出小废物"
       },
       {
         "command": "small-waste-translation.setting",

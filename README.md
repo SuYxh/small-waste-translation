@@ -32,3 +32,11 @@
 
 
 > 安装的时候最好使用 npm 如果使用 pnpm 在vsce package打包的时候会出现一些包找不到的问题，还需要额外安装.
+
+
+
+## 使用视频
+
+
+<video src="https://qn.huat.xyz/video/%E5%B0%8F%E5%BA%9F%E7%89%A9%E7%BF%BB%E8%AF%91%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.mp4"></video>
+

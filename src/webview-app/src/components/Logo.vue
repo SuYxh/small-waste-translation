@@ -37,13 +37,15 @@ export default {
   gap: 16px;
   font-size: 24px;
   color: #1890ff;
-  /* Ant Design 的主题蓝色 */
 }
 
 .logo-image {
   width: 40px;
-  /* 根据实际情况调整 */
   height: 40px;
-  /* 根据实际情况调整 */
+}
+
+.logo-image:hover {
+  transform: translate(-50%, -50%) rotate(666turn);
+  transition: transform 59s 1s cubic-bezier(0.3, 0, 0.8, 1);
 }
 </style>

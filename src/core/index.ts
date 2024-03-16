@@ -1,6 +1,6 @@
-import {  showInformationMessage, useFeatureTranslate } from '@/utils';
-import { UsageLimitService, DIContainer, UserService, LocalStorageService } from '@/service';
-import { TRANSLATE, GENERATE_FUNCTION_NAME, USAGE_LIMIT_SERVICE, LOCAL_STORAGE_SERVICE, IS_SYSTEM_USER, WEBVIEW_MANAGER } from '@/const';
+import {  useFeatureTranslate } from '@/utils';
+import {  DIContainer, UserService, LocalStorageService } from '@/service';
+import { TRANSLATE, GENERATE_FUNCTION_NAME, LOCAL_STORAGE_SERVICE, WEBVIEW_MANAGER } from '@/const';
 import { translateText } from '@/translation';
 import { askToAI } from '@/ai';
 import { WebviewManager } from '@/webview';
@@ -16,7 +16,6 @@ export const translateToChinese = () => {
   })
 }
 
-
 // 将选中文本翻译成英文
 export const translateToEnglish = () => {
   const fn = translateText.bind(this, 'EN', 'ZH')
@@ -26,7 +25,6 @@ export const translateToEnglish = () => {
   })
 }
 
-
 // 函数名称生成
 export const generateFunctionName = async () => {
   useFeatureTranslate({
@@ -34,29 +32,6 @@ export const generateFunctionName = async () => {
     apiName: GENERATE_FUNCTION_NAME
   })
 };
-
-
-export const resetCallTime = () => {
-  // vip 用户才可以使用这个重置
-  // const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
-  // const isSystemUser = localStorageService.get(IS_SYSTEM_USER)
-  // if (isSystemUser) {
-  //   showInformationMessage('您没有权限重置')
-  //   return;
-  // }
-
-  const usageLimitService = DIContainer.instance.get<UsageLimitService>(USAGE_LIMIT_SERVICE);
-  usageLimitService.initializeDailyLimits()
-  showInformationMessage('重置成功')
-}
-
-
-export const getRestCallTime = () => {
-  const usageLimitService = DIContainer.instance.get<UsageLimitService>(USAGE_LIMIT_SERVICE);
-  const text = usageLimitService.getRemainingUsageText()
-  showInformationMessage(text)
-}
-
 
 export const login = () => {
   const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
