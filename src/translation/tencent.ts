@@ -107,11 +107,18 @@ export class TencentService implements ITranslationService {
     }
   }
 
-  async verifyApiKey(): Promise<boolean> {
+  async verifyApiKey(key: string, value: string): Promise<boolean> {
+    const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+    await localStorageService.set(TENCENT_SECRET_ID, key);
+    await localStorageService.set(TENCENT_SECRET_KEY, value);
+
     const list: any = await this.translateText('test', 'ZH', 'EN')
     if (list?.length > 0) {
       return true
+    } else {
+      await localStorageService.delete(TENCENT_SECRET_ID);
+      await localStorageService.delete(TENCENT_SECRET_KEY);
+      return false
     }
-    return false
   }
 }

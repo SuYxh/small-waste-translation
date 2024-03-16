@@ -8,7 +8,7 @@
       <div class="main-container">
         <Tabs :tabs="tabs">
           <template #intro>
-            <div>这是一个使用Vue 3和Vite构建的应用，旨在演示如何通过Tab组件优雅地组织内容。</div>
+            <Intro />
           </template>
           <template #user>
             <UserModule />
@@ -33,6 +33,7 @@
 <script>
 import { ref, watch } from 'vue';
 import Tabs from './components/Tabs.vue';
+import Intro from './components/Intro.vue';
 import LogoComponent from './components/Logo.vue';
 import UserModule from './components/UserProfile.vue';
 import ApiModule from './components/ApiModule.vue';
@@ -44,6 +45,7 @@ export default {
   name: 'App',
   components: {
     Tabs,
+    Intro,
     LogoComponent,
     UserModule,
     ApiModule,
@@ -55,6 +57,7 @@ export default {
       { title: '简介', content: 'intro' },
       { title: '用户', content: 'user' },
       { title: 'API', content: 'api' },
+      { title: '本地存储', content: 'localstorage' },
     ]);
 
     store.getVscodeData()
@@ -62,9 +65,8 @@ export default {
     watch(() => store.state.debugger, (newVal, oldVal) => {
       if (newVal.isDebug) {
         tabs.value.push({ title: '本地存储', content: 'localstorage' });
-        tabs.value.push({ title: '操作测试', content: 'testOperation' });
       } else {
-        tabs.value.pop();
+        tabs.value = tabs.value.filter(tab => tab.content !== 'localstorage');
       }
     }, {
       immediate: true,

@@ -15,6 +15,9 @@ import {
 } from '@/utils';
 import type { ITranslationService, ITranslateTextResult } from '@/type';
 
+export * from './baidu';
+export * from './tencent';
+export * from './deepl';
 
 // 平台列表
 export const translationServices: ITranslationService[] = [

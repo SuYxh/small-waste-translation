@@ -64,11 +64,16 @@ export class DeepLService implements ITranslationService {
         }
     }
 
-    async verifyApiKey(): Promise<boolean> {
+    async verifyApiKey(key: string): Promise<boolean> {
+        const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+        await localStorageService.set(DEEPL_KEY, key);
+
         const list: any = await this.translateText('test', 'ZH', 'EN')
         if (list?.length > 0) {
             return true
-        } 
-        return false
+        } else {
+            await localStorageService.delete(DEEPL_KEY);
+            return false
+        }
     }
 }

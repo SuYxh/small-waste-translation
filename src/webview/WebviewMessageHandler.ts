@@ -5,6 +5,8 @@ import { LOCAL_STORAGE_SERVICE, USERNAME, PASSWORD, OPENAI_ACCESS_TOKEN, USAGE_L
 import { showErrorMessage, showInformationMessage } from '@/utils';
 import { openaiLogin } from '@/ai/openai';
 import { WebviewManager } from './index';
+import { BaiduService, TencentService, DeepLService } from '@/translation';
+import type { ITranslationService } from '@/type';
 
 export class WebviewMessageHandler {
 
@@ -60,6 +62,10 @@ export class WebviewMessageHandler {
 
       case 'refresh':
         await this.refresh(message);
+        break;
+
+      case 'verifyApiKey':
+        await this.verifyApiKey(message);
         break;
 
       default:
@@ -188,6 +194,35 @@ export class WebviewMessageHandler {
     await this.localStorageService.clearAllData()
     showInformationMessage('所有数据删除成功')
     const result = { code: 0, data: '所有数据删除成功' }; // 假设的处理结果
+    this.communicator.sendMessage({ id: message.id, ...result })
+  }
+
+  private async verifyApiKey(message: any) {
+    console.log('delAllStorage request:', message.params);
+    const { key, secret, platform } = message.params
+    let instance: ITranslationService = {} as ITranslationService
+    switch (platform) {
+      case 'baidu':
+        instance = new BaiduService()
+        break;
+      case 'tencent':
+        instance = new TencentService()
+        break;
+      case 'deepl':
+        instance = new DeepLService()
+        break;
+      default:
+        instance = {} as ITranslationService
+        break;
+    }
+
+    const flag = await instance.verifyApiKey(key, secret)
+    if (flag) {
+      showInformationMessage('验证成功')
+    } else {
+      showErrorMessage('验证失败')
+    }
+    const result = { code: 0, data: flag }; // 假设的处理结果
     this.communicator.sendMessage({ id: message.id, ...result })
   }
 }

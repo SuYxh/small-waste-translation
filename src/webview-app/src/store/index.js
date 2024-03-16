@@ -7,23 +7,14 @@ const initialState = {
   localData: [],
   userInfo: {},
   debugger: {
-    isDebug: true,
+    isDebug: false,
   },
-  count: 0,
   remainingUsageText: "",
 };
 
 // 创建并导出响应式状态
 export const store = reactive({
   state: initialState,
-  // 定义修改状态的方法
-  increment() {
-    this.state.count++;
-  },
-  // 重置状态
-  reset() {
-    this.state.count = initialState.count;
-  },
   getAllLocalData() {
     console.log("getAllLocalData 执行");
     sendMessage("getAllStorage", {}, (result) => {

@@ -81,11 +81,18 @@ export class BaiduService implements ITranslationService {
         }
     }
 
-    async verifyApiKey(): Promise<boolean> {
+    async verifyApiKey(key: string, value: string): Promise<boolean> {
+        const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+        await localStorageService.set(BAIDU_APP_ID, key);
+        await localStorageService.set(BAIDU_APP_KEY, value);
+
         const list: any = await this.translateText('test', 'ZH', 'EN')
         if (list?.length > 0) {
             return true
-        } 
-        return false
+        }  else {
+            await localStorageService.delete(BAIDU_APP_ID);
+            await localStorageService.delete(BAIDU_APP_KEY);
+            return false
+        }
     }
 }

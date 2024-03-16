@@ -14,6 +14,8 @@ export interface ITranslateTextResult {
 export interface ITranslationService {
   getPlatform(): string;
   translateText(text: string, targetLang: string, sourceLang?: string): Promise<ITranslateTextResult[]>;
+
+  verifyApiKey(key: string, secret?: string): Promise<boolean>;
 }
 
 export interface IAIService {
