@@ -72,3 +72,4 @@ const getData = () => {
   color: black;
 }
 </style>
+../hook/useCommunicator/ExtensionCommunicator.js/index.js

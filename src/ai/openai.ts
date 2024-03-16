@@ -29,14 +29,21 @@ export function openaiLogin(mobile: string, password: string) {
         return response.json();
       })
       .then(async (data: any) => {
-        const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
-        await localStorageService.set(OPENAI_ACCESS_TOKEN, data.data)
-        await localStorageService.set(USERNAME, mobile)
-        await localStorageService.set(PASSWORD, password)
-        resolve(data)
+        console.log('openaiLogin-success', data)
+        if (data.data) {
+          const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+          await localStorageService.set(OPENAI_ACCESS_TOKEN, data.data)
+          await localStorageService.set(USERNAME, mobile)
+          await localStorageService.set(PASSWORD, password)
+          resolve(data)
+        } else {
+          console.log('openaiLogin-error-1', data.message)
+          reject(new Error(`${data.message}`))
+        }
       })
       .catch(error => {
-        reject(new Error(`login error: ${error}`))
+        console.log('openaiLogin-error-2', error)
+        reject(new Error(`${error}`))
       });
   })
 }

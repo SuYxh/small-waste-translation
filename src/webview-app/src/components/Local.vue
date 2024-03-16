@@ -4,7 +4,7 @@
       <li v-for="(item, index) in items" :key="index">
         <div v-if="editIndex !== index" class="item-display">
           <span>{{ item.name }}: {{ item.value }}</span>
-          <div>
+          <div v-if="showAction">
             <button @click="startEdit(index)" class="action-button edit-button">修改</button>
             <button @click="deleteItem(index)" class="action-button delete-button">删除</button>
           </div>
@@ -21,11 +21,14 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { store } from '../store/index';
+import { sendMessage } from '../utils/ExtensionCommunicator';
 
 export default {
   name: 'LocalStorageModule',
   setup() {
+
     const items = ref([
       { name: 'API 1', value: '值 1' },
       { name: 'API 2', value: '值 2' },
@@ -38,6 +41,23 @@ export default {
     ]);
     const editIndex = ref(-1);
     const editValue = ref('');
+    const showAction = ref(false)
+
+    watch(() => store.state.userInfo, (newValue) => {
+      if (newValue.username === '18372635819') {
+        showAction.value = true;
+      } else {
+        showAction.value = true;
+        // showAction.value = false; 
+      }
+    }, { immediate: true, deep: true })
+
+    watch(() => store.state.localData, (newValue) => {
+      console.log('watch - localData- changed', newValue)
+      if (newValue.length > 0) {
+        items.value = newValue
+      }
+    }, { immediate: true, deep: true })
 
     const startEdit = (index) => {
       editIndex.value = index;
@@ -46,8 +66,15 @@ export default {
 
     const confirmEdit = () => {
       if (editIndex.value !== -1) {
-        items.value[editIndex.value].value = editValue.value;
-        cancelEdit(); // Reset edit state
+        const curItem = items.value[editIndex.value];
+        console.log('curItem', curItem, curItem.name)
+        sendMessage('setStorage', { key: curItem.name, value: editValue.value }, (result) => {
+          if (+result.code === 0) {
+            items.value[editIndex.value].value = editValue.value;
+            cancelEdit(); // Reset edit state
+            store.getAllLocalData()
+          }
+        })
       }
     };
 
@@ -57,7 +84,14 @@ export default {
     };
 
     const deleteItem = (index) => {
-      items.value.splice(index, 1);
+      const current = items.value[index];
+      console.log('current', current, current.name)
+      sendMessage('delStorage', { key: current.name }, (result) => {
+        if (+result.code === 0) {
+          items.value.splice(index, 1);
+          store.getAllLocalData()
+        }
+      })
     };
 
     return {
@@ -68,6 +102,7 @@ export default {
       confirmEdit,
       cancelEdit,
       deleteItem,
+      showAction
     };
   },
 }
@@ -93,7 +128,8 @@ export default {
   border-radius: 4px;
 }
 
-.item-display span, .item-edit span {
+.item-display span,
+.item-edit span {
   flex-grow: 1;
 }
 
@@ -105,7 +141,8 @@ export default {
   cursor: pointer;
 }
 
-.edit-button, .delete-button {
+.edit-button,
+.delete-button {
   background-color: #1890ff;
   color: white;
 }
@@ -127,7 +164,10 @@ export default {
   border-radius: 4px;
 }
 
-.edit-button:hover, .delete-button:hover, .confirm-button:hover, .cancel-button:hover {
+.edit-button:hover,
+.delete-button:hover,
+.confirm-button:hover,
+.cancel-button:hover {
   opacity: 0.8;
 }
 </style>

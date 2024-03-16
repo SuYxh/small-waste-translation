@@ -58,6 +58,10 @@ export class WebviewMessageHandler {
         await this.getRemainingUsageText(message);
         break;
 
+      case 'refresh':
+        await this.refresh(message);
+        break;
+
       default:
         await this.handleDefault(message);
         break;
@@ -114,17 +118,30 @@ export class WebviewMessageHandler {
   private async handleLogin(message: any) {
     console.log('Login request:', message.params);
 
-    const result = await openaiLogin(message.params?.mobile, message.params?.password);
-    if (result.data) {
-      // 成功
-      const data = { code: 0, data: { token: result.data } };
+    try {
+      const username = message.params?.mobile ?? message.params?.username
 
-      // 发送响应回 Webview
-      this.communicator.sendMessage({ id: message.id, ...data });
-      showInformationMessage('登录成功')
-    } else {
+      const result = await openaiLogin(username, message.params?.password);
+      console.log('handleLogin--result', result)
+
+      if (result.data) {
+        // 成功
+        const data = { code: 0, data: { token: result.data } };
+
+        // 发送响应回 Webview
+        this.communicator.sendMessage({ id: message.id, ...data });
+        showInformationMessage('登录成功')
+      } else {
+        // 失败
+        showErrorMessage(result.message)
+        const data = { code: -1, data: { token: result.data } };
+        this.communicator.sendMessage({ id: message.id, ...data });
+      }
+    } catch (error: any) {
       // 失败
-      showErrorMessage(result.message)
+      showErrorMessage(error.message)
+      const data = { code: -1, data: { token: null } };
+      this.communicator.sendMessage({ id: message.id, ...data });
     }
   }
 
@@ -153,17 +170,24 @@ export class WebviewMessageHandler {
     console.log('setStorage request:', message.params);
     await this.localStorageService.set(message.params?.key, message.params.value)
     showInformationMessage('设置成功')
+    // 发送响应回 Webview
+    const result = { code: 0, data: '设置成功' }; // 假设的处理结果
+    this.communicator.sendMessage({ id: message.id, ...result });
   }
 
   private async delStorage(message: any) {
     console.log('delStorage request:', message.params);
     await this.localStorageService.delete(message.params?.key)
     showInformationMessage('删除成功')
+    const result = { code: 0, data: '删除成功' }; // 假设的处理结果
+    this.communicator.sendMessage({ id: message.id, ...result });
   }
 
   private async delAllStorage(message: any) {
     console.log('delAllStorage request:', message.params);
     await this.localStorageService.clearAllData()
     showInformationMessage('所有数据删除成功')
+    const result = { code: 0, data: '所有数据删除成功' }; // 假设的处理结果
+    this.communicator.sendMessage({ id: message.id, ...result })
   }
 }

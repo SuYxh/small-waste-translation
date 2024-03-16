@@ -19,6 +19,9 @@
           <template #localstorage>
             <LocalStorageModule />
           </template>
+          <template #testOperation>
+            <TestOperation />
+          </template>
         </Tabs>
       </div>
     </main>
@@ -28,11 +31,14 @@
 </template>
 
 <script>
+import { ref, watch } from 'vue';
 import Tabs from './components/Tabs.vue';
 import LogoComponent from './components/Logo.vue';
 import UserModule from './components/UserProfile.vue';
 import ApiModule from './components/ApiModule.vue';
 import LocalStorageModule from './components/Local.vue';
+import TestOperation from './components/TestOperation.vue';
+import { store } from './store/index';
 
 export default {
   name: 'App',
@@ -42,18 +48,34 @@ export default {
     UserModule,
     ApiModule,
     LocalStorageModule,
+    TestOperation
   },
-  data() {
-    return {
-      tabs: [
-        { title: '简介', content: 'intro' },
-        { title: '用户', content: 'user' },
-        { title: 'API', content: 'api' },
-        { title: '本地存储', content: 'localstorage' },
-      ],
-    };
-  },
+  setup() {
+    const tabs = ref([
+      { title: '简介', content: 'intro' },
+      { title: '用户', content: 'user' },
+      { title: 'API', content: 'api' },
+    ]);
+
+    store.getVscodeData()
+
+    watch(() => store.state.debugger, (newVal, oldVal) => {
+      if (newVal.isDebug) {
+        tabs.value.push({ title: '本地存储', content: 'localstorage' });
+        tabs.value.push({ title: '操作测试', content: 'testOperation' });
+      } else {
+        tabs.value.pop();
+      }
+    }, {
+      immediate: true,
+      deep: true,
+    })
+
+    return { tabs };
+  }
 };
+
+
 </script>
 
 <style>
