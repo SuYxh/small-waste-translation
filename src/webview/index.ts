@@ -34,7 +34,7 @@ export class WebviewManager {
   }
 
   private loadWebviewContent(panel: vscode.WebviewPanel) {
-    const distPath = path.join(this.context.extensionPath, 'src', 'webview-app', 'dist');
+    const distPath = path.join(this.context.extensionPath, 'webview-app', 'dist');
     const distUri = panel.webview.asWebviewUri(vscode.Uri.file(distPath));
 
     const indexHtmlPath = path.join(distPath, 'index.html');
