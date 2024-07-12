@@ -49,7 +49,7 @@ export function showInformationMessage(message: string) {
  * @param commandName 命令名称
  * @param callback 回调函数
  */
-export function registerCommand(context: vscode.ExtensionContext, commandName: string, callback: () => any) {
+export function registerCommand(context: vscode.ExtensionContext, commandName: string, callback: (...params: any) => any) {
   const disposable = vscode.commands.registerCommand(commandName, callback);
   context.subscriptions.push(disposable);
 }
@@ -177,3 +177,29 @@ export function withProgress<T>(
   });
 }
 
+/**
+ * 在活动文本编辑器中替换指定范围内的文本。
+ * 
+ * 此函数尝试在Visual Studio Code当前活动的文本编辑器实例中替换指定范围内的文本。
+ * 如果编辑器可用，它将执行文本替换，并提供操作成功或失败的反馈。
+ * 如果没有活动的编辑器，它会显示错误信息。
+ * 
+ * @param range 要替换的文本范围，由编辑器的范围对象定义。
+ * @param newText 替换旧文本的新文本。
+ */
+export function replaceTextInRange(range: any, newText: string) {
+  const editor = vscode.window.activeTextEditor;
+  if (editor) {
+    editor.edit(editBuilder => {
+      editBuilder.replace(range, newText);
+    }).then(success => {
+      if (success) {
+        // vscode.window.showInformationMessage('Text replaced successfully!');
+      } else {
+        vscode.window.showErrorMessage('Failed to replace text.');
+      }
+    });
+  } else {
+    vscode.window.showErrorMessage('No active editor.');
+  }
+}

@@ -1,4 +1,4 @@
-import {  useFeatureTranslate } from '@/utils';
+import {  useFeatureTranslate, replaceTextInRange } from '@/utils';
 import {  DIContainer, UserService, LocalStorageService } from '@/service';
 import { TRANSLATE, GENERATE_FUNCTION_NAME, LOCAL_STORAGE_SERVICE, WEBVIEW_MANAGER } from '@/const';
 import { translateText } from '@/translation';
@@ -32,6 +32,10 @@ export const generateFunctionName = async () => {
     apiName: GENERATE_FUNCTION_NAME
   })
 };
+
+export const chineseToFunctionName = (params: any, range: any) => {
+  replaceTextInRange(range, params)
+}
 
 export const login = () => {
   const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);

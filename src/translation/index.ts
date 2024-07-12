@@ -37,7 +37,7 @@ export async function translateText(targetLang: string, sourceLang: string) {
   // 获取选中的文本
   const text = getSelectedText();
   if (!text) {
-    showInformationMessage('No text selected')
+    showInformationMessage('请先选中需要翻译的文案哦')
     return;
   }
 

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { translateToChinese, translateToEnglish, generateFunctionName, login, loginout, setting } from '@/core';
+import { translateToChinese, translateToEnglish, generateFunctionName, chineseToFunctionName, login, loginout, setting } from '@/core';
 import { registerCommand } from '@/utils';
 
 export function registerCommands(context: vscode.ExtensionContext) {
@@ -7,6 +7,7 @@ export function registerCommands(context: vscode.ExtensionContext) {
   registerCommand(context, 'small-waste-translation.translateToChinese', translateToChinese)
 	registerCommand(context, 'small-waste-translation.translateToEnglish', translateToEnglish)
 	registerCommand(context, 'small-waste-translation.generateFunctionName', generateFunctionName)
+	registerCommand(context, 'small-waste-translation.chineseToFunctionName', chineseToFunctionName)
 
 	// 辅助命令
 	registerCommand(context, 'small-waste-translation.login', login)
@@ -14,4 +15,6 @@ export function registerCommands(context: vscode.ExtensionContext) {
 	registerCommand(context, 'small-waste-translation.setting', () => {
 		setting(context)
 	})
+
+	// 中文转函数名
 }
