@@ -1,8 +1,24 @@
-import type { ITranslationService, ITranslateTextResult } from '@/type';
-import { LOCAL_STORAGE_SERVICE, USER_SERVICE, TRANSLATE_CALL_TIMES, TRANSLATE, GENERATE_FUNCTION_NAME, GENERATE_FUNCTION_NAME_CALL_TIMES, IS_SYSTEM_USER } from '@/const';
-import { IUseFeature } from '@/type';
-import { DIContainer, LocalStorageService, UserService, UsageLimitService } from '@/service';
-import { showErrorMessage } from './vscode';
+import type { ITranslationService, ITranslateTextResult } from "@/type";
+import {
+  LOCAL_STORAGE_SERVICE,
+  USER_SERVICE,
+  TRANSLATE_CALL_TIMES,
+  TRANSLATE,
+  GENERATE_FUNCTION_NAME,
+  GENERATE_FUNCTION_NAME_CALL_TIMES,
+  IS_SYSTEM_USER,
+} from "@/const";
+import { IUseFeature } from "@/type";
+import {
+  DIContainer,
+  LocalStorageService,
+  UserService,
+  UsageLimitService,
+} from "@/service";
+import { showErrorMessage } from "./vscode";
+import * as vscode from "vscode";
+import { execSync } from 'child_process';
+
 
 /**
  * 将字符串转换为驼峰命名法
@@ -12,11 +28,12 @@ import { showErrorMessage } from './vscode';
  */
 export function toCamelCase(str: string): string {
   // 用正则表达式将空格后的字母大写
-  const camelCaseStr = str.replace(/\s(.)/g, (match, group1) => {
-    return group1.toUpperCase();
-  })
+  const camelCaseStr = str
+    .replace(/\s(.)/g, (match, group1) => {
+      return group1.toUpperCase();
+    })
     // 移除所有空格
-    .replace(/\s/g, '')
+    .replace(/\s/g, "")
     // 将第一个单词的首字母转换为小写
     .replace(/^(.)/, (match, group1) => {
       return group1.toLowerCase();
@@ -32,10 +49,9 @@ export function toCamelCase(str: string): string {
  * @returns 返回带有前缀的错误消息
  */
 export function genErrorMsg(msg: string) {
-  const prefix = '小废物翻译提示';
+  const prefix = "小废物翻译提示";
   return `${prefix}-${msg}`;
 }
-
 
 /**
  * 获取所有平台的名称
@@ -44,9 +60,8 @@ export function genErrorMsg(msg: string) {
  * @returns 所有平台的名称组成的字符串数组
  */
 export function gelAllPlatform(platforms: ITranslationService[]): string[] {
-  return platforms.map(item => item.getPlatform())
+  return platforms.map((item) => item.getPlatform());
 }
-
 
 /**
  * 在字符串后添加平台标识
@@ -60,7 +75,6 @@ export function addPlatformFlag(str: string, platform: string) {
   return `${str} --by-${platform}`;
 }
 
-
 /**
  * 删除字符串中的平台标识
  *
@@ -70,11 +84,10 @@ export function addPlatformFlag(str: string, platform: string) {
  */
 export function delPlatformFlag(str: string, platforms: string[]) {
   // 构建正则表达式，用于匹配 " --by-{platform}"
-  const regex = new RegExp(` --by-(${platforms.join('|')})`, 'g');
+  const regex = new RegExp(` --by-(${platforms.join("|")})`, "g");
   // 使用正则表达式移除平台标识
-  return str.replace(regex, '');
+  return str.replace(regex, "");
 }
-
 
 /**
  * 将翻译结果转换为ITranslateTextResult[]类型数组
@@ -85,15 +98,21 @@ export function delPlatformFlag(str: string, platforms: string[]) {
  * @param targetLang 目标语言
  * @returns ITranslateTextResult[]类型数组
  */
-export function convertTranslationResults(texts: string[], originText: string, sourceLang: string, targetLang: string, platform: string): ITranslateTextResult[] {
-  return texts.map(item => {
+export function convertTranslationResults(
+  texts: string[],
+  originText: string,
+  sourceLang: string,
+  targetLang: string,
+  platform: string
+): ITranslateTextResult[] {
+  return texts.map((item) => {
     return {
       translation: item,
       originText,
       sourceLang,
       targetLang,
       platform,
-    }
+    };
   });
 }
 
@@ -103,40 +122,43 @@ export function convertTranslationResults(texts: string[], originText: string, s
  * @param {string} selectText 去掉平台标识后的选中文本
  * @return {*}
  */
-export function getOperationIdentifier(currentSelect: ITranslateTextResult, selectText: string) {
+export function getOperationIdentifier(
+  currentSelect: ITranslateTextResult,
+  selectText: string
+) {
   // 获取操作标识：是插入到选中文本下方还是替换选中文本
   const insertionThreshold = process.env.INSERTION_THRESHOLD || 10;
   // 翻译的文本内容的长度
-  let counter = 0
+  let counter = 0;
   // 如果翻译的目标语言是英文
-  if (currentSelect.targetLang.toLocaleLowerCase() === 'en') {
-    counter = selectText.split(' ').length
+  if (currentSelect.targetLang.toLocaleLowerCase() === "en") {
+    counter = selectText.split(" ").length;
   } else {
     // 中文
-    counter = selectText.length
+    counter = selectText.length;
   }
   // 获取操作标识：是插入到选中文本下方还是替换选中文本
-  return counter > +insertionThreshold ? 'insert' : 'replace';
+  return counter > +insertionThreshold ? "insert" : "replace";
 }
 
-
 export function extractPenultimateJson(str: string): object | string {
-
   // 按行分割字符串
-  const lines = str.trim().split('\n');
+  const lines = str.trim().split("\n");
 
   // 过滤出所有有效的JSON对象行
-  const jsonLines = lines.filter(line => line.startsWith('{') && line.endsWith('}'));
+  const jsonLines = lines.filter(
+    (line) => line.startsWith("{") && line.endsWith("}")
+  );
 
   // 确保有足够的JSON对象行
   if (jsonLines.length < 2) {
     try {
       const data = JSON.parse(jsonLines[0]);
-      console.error('没有足够的JSON对象行-1');
-      return data.message ??  ''
+      console.error("没有足够的JSON对象行-1");
+      return data.message ?? "";
     } catch (error) {
-      console.error('没有足够的JSON对象行-2');
-      return '没有足够的JSON对象行';
+      console.error("没有足够的JSON对象行-2");
+      return "没有足够的JSON对象行";
     }
   }
 
@@ -147,8 +169,8 @@ export function extractPenultimateJson(str: string): object | string {
     // 尝试将该行解析为JSON对象
     return JSON.parse(penultimateJsonLine);
   } catch (error) {
-    console.error('JSON解析错误:', error);
-    return '没有足够的JSON对象行';
+    console.error("JSON解析错误:", error);
+    return "没有足够的JSON对象行";
   }
 }
 
@@ -156,58 +178,125 @@ export function extractDataFromString(str: string): object | null {
   // 正则表达式匹配{}内的内容
   const match = str.match(/\{.*?\}/gs);
   if (match && match[0]) {
-      try {
-          // 将匹配到的字符串转换为对象
-          const data = JSON.parse(match[0]);
-          return data;
-      } catch (error) {
-          console.error("解析JSON时出错:", error);
-      }
+    try {
+      // 将匹配到的字符串转换为对象
+      const data = JSON.parse(match[0]);
+      return data;
+    } catch (error) {
+      console.error("解析JSON时出错:", error);
+    }
   }
   return null;
 }
 
-
-
-export function getAPIDefaultCallTimes(apiName:string) {
+export function getAPIDefaultCallTimes(apiName: string) {
   const config: any = {
     [TRANSLATE]: TRANSLATE_CALL_TIMES,
-    [GENERATE_FUNCTION_NAME]: GENERATE_FUNCTION_NAME_CALL_TIMES
-  }
+    [GENERATE_FUNCTION_NAME]: GENERATE_FUNCTION_NAME_CALL_TIMES,
+  };
 
-  return config[apiName] ?? -1
+  return config[apiName] ?? -1;
 }
 
 export function useFeatureTranslate(options: IUseFeature) {
-  const { successCb, apiName, failCb } = options
+  const { successCb, apiName, failCb } = options;
 
-  const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+  const localStorageService = DIContainer.instance.get<LocalStorageService>(
+    LOCAL_STORAGE_SERVICE
+  );
   const userService = DIContainer.instance.get<UserService>(USER_SERVICE);
- 
-  const usageLimitService = new UsageLimitService(localStorageService, userService);
+
+  const usageLimitService = new UsageLimitService(
+    localStorageService,
+    userService
+  );
 
   if (usageLimitService.canUseFeature(apiName)) {
-      usageLimitService.recordFeatureUse(apiName);
-      if (typeof successCb === 'function') {
-        successCb()
-      }
+    usageLimitService.recordFeatureUse(apiName);
+    if (typeof successCb === "function") {
+      successCb();
+    }
   } else {
-      if (typeof failCb === 'function') {
-        failCb()
-      } else {
-        showErrorMessage('普通用户每天使用该功能的次数已达到上限!')
-      } 
+    if (typeof failCb === "function") {
+      failCb();
+    } else {
+      showErrorMessage("普通用户每天使用该功能的次数已达到上限!");
+    }
   }
 }
 
-export function setSystemUser(flag:boolean) {
-  const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
-  localStorageService.set(IS_SYSTEM_USER, flag)
+export function setSystemUser(flag: boolean) {
+  const localStorageService = DIContainer.instance.get<LocalStorageService>(
+    LOCAL_STORAGE_SERVICE
+  );
+  localStorageService.set(IS_SYSTEM_USER, flag);
 }
 
 export function setSystemDefaultValue() {
-  const localStorageService = DIContainer.instance.get<LocalStorageService>(LOCAL_STORAGE_SERVICE);
+  const localStorageService = DIContainer.instance.get<LocalStorageService>(
+    LOCAL_STORAGE_SERVICE
+  );
   localStorageService.set(IS_SYSTEM_USER, true);
   localStorageService.set(TRANSLATE, 0);
   localStorageService.set(GENERATE_FUNCTION_NAME, 0);
+}
+
+
+/**
+ * 获取Git用户名
+ * @returns 返回Git用户名，如果获取失败则返回空字符串
+ */
+export function getGitUserEmail(): string {
+  try {
+    // 先尝试获取本地配置
+    try {
+      const localName = execSync('git config user.email', { encoding: 'utf-8' }).trim();
+      if (localName) {
+        console.log('获取到本地Git用户名:', localName);
+        return localName;
+      }
+    } catch (error) {
+      console.log('获取本地Git用户名失败，尝试获取全局配置');
+    }
+
+    // 如果本地配置不存在，尝试获取全局配置
+    const globalName = execSync('git config --global user.email', { encoding: 'utf-8' }).trim();
+    console.log('获取到全局Git用户名:', globalName);
+    return globalName;
+
+  } catch (error) {
+    console.error('获取Git用户名失败:', error);
+    return '';
+  }
+}
+
+/**
+ * 在选中文本的上方插入内容
+ * @param insertText 要插入的文本
+ * @param editor 当前编辑器实例
+ * @returns Promise<boolean>
+ */
+export async function insertTextAboveSelection(insertText: string): Promise<boolean> {
+  try {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      return false;
+    }
+
+    const selection = editor.selection;
+    const startLine = selection.start.line;
+    
+    // 创建一个在选中文本上方的位置
+    const position = new vscode.Position(startLine, 0);
+    
+    // 插入文本并在末尾添加换行符
+    await editor.edit(editBuilder => {
+      editBuilder.insert(position, insertText + '\n');
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('插入文本失败:', error);
+    return false;
+  }
 }

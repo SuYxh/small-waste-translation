@@ -11,3 +11,6 @@ TENCENT_SECRET_KEY = ''
 
 # 翻译的文本超过此数字就会在选中的文本下方进行插入，否则是进行替换
 INSERTION_THRESHOLD = 8
+
+
+DEEPSEEK_API_KEY = '38905793c4044419b38b1ab1b7421063'

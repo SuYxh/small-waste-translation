@@ -2,7 +2,7 @@ import {  useFeatureTranslate, replaceTextInRange } from '@/utils';
 import {  DIContainer, UserService, LocalStorageService } from '@/service';
 import { TRANSLATE, GENERATE_FUNCTION_NAME, LOCAL_STORAGE_SERVICE, WEBVIEW_MANAGER } from '@/const';
 import { translateText } from '@/translation';
-import { askToAI } from '@/ai';
+import { askToAI, askToDeepseek } from '@/ai';
 import { WebviewManager } from '@/webview';
 import * as vscode from 'vscode';
 
@@ -31,6 +31,11 @@ export const generateFunctionName = async () => {
     successCb: askToAI,
     apiName: GENERATE_FUNCTION_NAME
   })
+};
+
+// 生成js注释
+export const generateJsDoc = async () => {
+  askToDeepseek()
 };
 
 export const chineseToFunctionName = (params: any, range: any) => {
