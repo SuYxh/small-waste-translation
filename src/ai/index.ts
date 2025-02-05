@@ -1,11 +1,10 @@
-import { extractDataFromString, extractPenultimateJson, getSelectedText, replaceSelectedText, showErrorMessage, showInformationMessage, showTranslationChoices, withProgress } from "@/utils";
-import { OpenaiService } from './openai';
+import { getSelectedText, replaceSelectedText, showErrorMessage, showInformationMessage, showTranslationChoices, withProgress } from "@/utils";
+import DoubaoService from './doubao'
 
-const openaiService = new OpenaiService()
-
+const doubaoService = new DoubaoService()
 
 function getAIProviderInstance() {
-  return openaiService
+  return doubaoService
 }
 
 export async function askToAI() {
@@ -27,23 +26,18 @@ export async function askToAI() {
       }
     )
 
-    // 将 ArrayBuffer 转换为 Buffer
-    const buffer = Buffer.from(arrayBuffer);
-    // 解析接口返回的数据
-    const result: any = extractPenultimateJson(buffer.toString())
+    let keywords = arrayBuffer.choices[0]?.message?.content?.split(",") ?? [];
 
-    if (result.text) {
-      // 解析GPT返回的 markdown 数据
-      const formatData: any = extractDataFromString(result.text)
-
+    if (keywords?.length) {
+      keywords = keywords?.map((k: any) => k.trim());
       // 展示翻译结果
-      let selected = await showTranslationChoices(formatData.data ?? []);
+      let selected = await showTranslationChoices(keywords ?? []);
       if (!selected) return;
       // 替换选中的文本
       await replaceSelectedText(selected);
     } else {
-      console.log('askToAI-解析-error', result);
-      showErrorMessage(result);
+      console.log('askToAI-解析-error', arrayBuffer);
+      showErrorMessage('生成失败');
       // 清理 AccessToken
       aiInstacne.cleanAccessToken();
     }

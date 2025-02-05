@@ -32,7 +32,7 @@ class CompletionProvider implements vscode.CompletionItemProvider {
         },
         {
           role: "user",
-          content: `请你将我这个文案 ${text} 转成函数名称, 小驼峰形式，出我 5 个参考的变量名称，只返回变量名称，用英文逗号分割，不要解释！`,
+          content: `请你将我这个文案 ${text} 转成函数名称, 小驼峰形式，出我 5 个参考的变量名称，只返回变量名称，用英文逗号分割，不要解释！切记不要生成类似于 variableName、variableName1、variableName2等直接添加序号`,
         },
       ],
       stream: false,
@@ -60,7 +60,7 @@ class CompletionProvider implements vscode.CompletionItemProvider {
     }
     const range = new vscode.Range(
       position.line,
-      sliceIndex + 3,
+      sliceIndex,
       position.line,
       position.character
     );
@@ -109,7 +109,7 @@ class CompletionProvider implements vscode.CompletionItemProvider {
     position: vscode.Position
   ) {
     // 获取当前位置的前一个字符
-    const line = document.lineAt(position).text;
+    const line = document.lineAt(position).text.trim();
     const lastChar = line.charAt(line.length - 1);
     const secondToLastChar = line.charAt(line.length - 2);
 
