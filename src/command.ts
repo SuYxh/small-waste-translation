@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { translateToChinese, translateToEnglish, generateFunctionName, chineseToFunctionName, login, loginout, setting } from '@/core';
+import { translateToChinese, translateToEnglish, generateFunctionName, chineseToFunctionName, login, loginout, setting, generateJsDoc } from '@/core';
 import { registerCommand } from '@/utils';
 
 export function registerCommands(context: vscode.ExtensionContext) {
@@ -8,6 +8,7 @@ export function registerCommands(context: vscode.ExtensionContext) {
 	registerCommand(context, 'small-waste-translation.translateToEnglish', translateToEnglish)
 	registerCommand(context, 'small-waste-translation.generateFunctionName', generateFunctionName)
 	registerCommand(context, 'small-waste-translation.chineseToFunctionName', chineseToFunctionName)
+	registerCommand(context, 'small-waste-translation.generateJsDoc', generateJsDoc)
 
 	// 辅助命令
 	registerCommand(context, 'small-waste-translation.login', login)

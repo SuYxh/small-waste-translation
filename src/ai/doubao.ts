@@ -32,7 +32,7 @@ class DoubaoService {
       return this.handleStreamResponse(response);
     } else {
       const responseData = await response.json();
-      console.log("模型返回的数据", responseData);
+      console.log("模型返回的数据-->", responseData);
       return responseData;
     }
   }

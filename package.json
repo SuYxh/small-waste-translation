@@ -2,7 +2,7 @@
   "name": "small-waste-translation",
   "displayName": "小废物翻译",
   "description": "翻译、腾讯翻译、百度翻译、免费翻译、deepl翻译、火山翻译",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "publisher": "y170088888",
   "repository": {
     "type": "git",
@@ -65,6 +65,10 @@
       {
         "command": "small-waste-translation.updateVarName",
         "title": "更新变量名称"
+      },
+      {
+        "command": "small-waste-translation.generateJsDoc",
+        "title": "📝 生成jsdoc"
       }
     ],
     "keybindings": [
@@ -90,6 +94,10 @@
         }
       ],
       "small-waste-translation.menu": [
+        {
+          "command": "small-waste-translation.generateJsDoc",
+          "group": "5_translation@0"
+        },
         {
           "command": "small-waste-translation.translateToChinese",
           "group": "5_translation@1"
