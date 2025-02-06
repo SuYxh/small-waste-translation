@@ -203,3 +203,76 @@ export function replaceTextInRange(range: any, newText: string) {
     vscode.window.showErrorMessage('No active editor.');
   }
 }
+
+/**
+ * 获取当前光标所在的行和列
+ * @returns {line: number, column: number} 返回一个对象，包含行和列的信息
+ */
+export function getCursorPosition(): { line: number; column: number } | undefined {
+  // 获取当前活动的文本编辑器
+  const editor = vscode.window.activeTextEditor;
+
+  if (editor) {
+      // 获取当前光标的位置
+      const position = editor.selection.active;
+
+      // 返回行和列的信息
+      return {
+          line: position.line + 1, // VS Code 中的行号从 0 开始，所以加 1
+          column: position.character + 1 // VS Code 中的列号从 0 开始，所以加 1
+      };
+  }
+
+  // 如果没有活动的文本编辑器，返回 undefined
+  return undefined;
+}
+
+export function getConfiguredModel(): string {
+  // 读取配置项
+  const config = vscode.workspace.getConfiguration('jsDoc');
+  // 默认值为 'deepseek-v3
+  const model = config.get<string>('model', 'volcengine-deepseek-v3'); 
+
+  return model;
+}
+
+// 定义获取指定行内容的方法
+export function getLineContent(lineNumber: number): string | null {
+  // 获取当前活动的文本编辑器
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+      return null;
+  }
+
+  // 获取文档
+  const document = editor.document;
+
+  // 检查行号是否有效
+  if (lineNumber < 0 || lineNumber >= document.lineCount) {
+      return null;
+  }
+
+  // 获取指定行的内容
+  const line = document.lineAt(lineNumber);
+  return line.text;
+}
+
+
+// 查找指定文本并获取其所在最新行号的方法
+export function findTextAndGetLine(text: string): number | null {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+      return null;
+  }
+  const document = editor.document;
+  const lineCount = document.lineCount;
+
+  for (let i = 0; i < lineCount; i++) {
+      const line = document.lineAt(i);
+      if (line.text.includes(text)) {
+          return i;
+      }
+  }
+  return null;
+}
+

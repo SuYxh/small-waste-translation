@@ -6,10 +6,19 @@ class DoubaoService {
 
   private url: string;
 
-  constructor() {
+  constructor(model?: string) {
     this.url = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
-    this.apiKey = process.env.VOLCENGINE_DouBao_APIKEY as string;
-    this.model = process.env.VOLCENGINE_DouBao_ENDPOINT_ID as string;
+    // this.apiKey = process.env.VOLCENGINE_DouBao_APIKEY as string;
+    // this.model = process.env.VOLCENGINE_DouBao_ENDPOINT_ID as string;
+
+    const defaultModel = process.env.VOLCENGINE_DouBao_ENDPOINT_ID
+    const modelMap = {
+      'Doubao-pro-32k': process.env.VOLCENGINE_DouBao_ENDPOINT_ID,
+      'volcengine-deepseek-v3': process.env.VOLCENGINE_DEEPSEEK_ENDPOINT_ID,
+    }
+    this.apiKey = process.env.VOLCENGINE_DEEPSEEK_APIKEY as string;
+    // @ts-ignore
+    this.model = modelMap[model] ??  defaultModel;
   }
 
   async chat(options: any) {

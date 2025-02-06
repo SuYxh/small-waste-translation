@@ -2,7 +2,7 @@
   "name": "small-waste-translation",
   "displayName": "小废物翻译",
   "description": "翻译、腾讯翻译、百度翻译、免费翻译、deepl翻译、火山翻译",
-  "version": "1.0.3",
+  "version": "1.0.7",
   "publisher": "y170088888",
   "repository": {
     "type": "git",
@@ -39,7 +39,15 @@
       ]
     },
     "configuration": {
-      "title": "小废物翻译"
+      "title": "小废物翻译",
+      "properties": {
+        "jsDoc.model": {
+          "type": "string",
+          "enum": ["volcengine-deepseek-v3", "Doubao-pro-32k","deepseek-v3", "siliconflow-deepseek-v3"],
+          "default": "volcengine-deepseek-v3",
+          "description": "选择使用的模型（volcengine-deepseek-v3 火山引擎提供的版本、siliconflow-deepseek-v3 硅基流动提供的版本）"
+        }
+      }
     },
     "commands": [
       {

@@ -300,3 +300,30 @@ export async function insertTextAboveSelection(insertText: string): Promise<bool
     return false;
   }
 }
+
+/**
+ * 在指定位置插入数据
+ * @param line 行号（从 1 开始）
+ * @param column 列号（从 1 开始）
+ * @param text 要插入的文本
+ * @returns 是否插入成功
+ */
+export async function insertTextAtPosition(line: number, column: number, text: string): Promise<boolean> {
+  // 获取当前活动的文本编辑器
+  const editor = vscode.window.activeTextEditor;
+
+  if (editor) {
+      // 将行号和列号转换为 VS Code 的 Position 对象（注意：VS Code 的行和列是从 0 开始的）
+      const position = new vscode.Position(line - 1, column - 1);
+
+      // 使用 edit 方法插入文本
+      const success = await editor.edit(editBuilder => {
+          editBuilder.insert(position, text);
+      });
+
+      return success; // 返回是否插入成功
+  }
+
+  // 如果没有活动的文本编辑器，返回 false
+  return false;
+}
